@@ -1,6 +1,8 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -10,6 +12,7 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
     private final List<User> repository = new ArrayList<>();
+    private int counter = 1;
 
     @GetMapping
     public List<User> findAllUsers() {
@@ -17,14 +20,21 @@ public class UserController {
     }
 
     @PostMapping
-    public User createUser(@RequestBody User user) {
+    public User createUser(@Valid @RequestBody User user) {
+        if (user.getId() == null) {
+            user.setId(counter++);
+        }
         repository.add(user);
         return user;
     }
 
     @PutMapping
-    public User updateUser(@RequestBody User user) {
-        repository.removeIf(u -> u.getId() == user.getId());
+    public User updateUser(@Valid @RequestBody User user) throws Exception {
+        repository.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .orElseThrow(ValidationException::new);
+        repository.removeIf(u -> u.getId().equals(user.getId()));
         repository.add(user);
         return user;
     }
