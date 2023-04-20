@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -10,6 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/users")
+@Slf4j
 public class UserController {
     private final List<User> repository = new ArrayList<>();
     private int counter = 1;
@@ -25,17 +27,24 @@ public class UserController {
             user.setId(counter++);
         }
         repository.add(user);
+        log.info("created user with id: {} and name: {}", user.getId(), user.getName());
         return user;
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) throws Exception {
-        repository.stream()
-                .filter(u -> u.getId().equals(user.getId()))
-                .findFirst()
-                .orElseThrow(ValidationException::new);
+    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
+        try {
+            repository.stream()
+                    .filter(u -> u.getId().equals(user.getId()))
+                    .findFirst()
+                    .orElseThrow(ValidationException::new);
+        } catch (ValidationException e) {
+            log.info("Validation failed for user with name: {}", user.getName());
+            throw new ValidationException();
+        }
         repository.removeIf(u -> u.getId().equals(user.getId()));
         repository.add(user);
+        log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
         return user;
     }
 }
