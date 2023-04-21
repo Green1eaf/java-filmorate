@@ -1,8 +1,8 @@
 package ru.yandex.practicum.filmorate.annotations;
 
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
 
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 import java.time.LocalDate;
 
 public class DateReleaseValidator implements ConstraintValidator<DateReleaseIsValid, LocalDate> {
@@ -13,7 +13,7 @@ public class DateReleaseValidator implements ConstraintValidator<DateReleaseIsVa
     }
 
     @Override
-    public boolean isValid(LocalDate ld, ConstraintValidatorContext context) {
-        return ld == null || ld.isAfter(MIN_RELEASE_DATE);
+    public boolean isValid(LocalDate date, ConstraintValidatorContext constraintValidatorContext) {
+        return date == null || date.isAfter(MIN_RELEASE_DATE);
     }
 }
