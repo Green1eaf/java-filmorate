@@ -33,15 +33,13 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) throws ValidationException {
-        try {
-            repository.stream()
-                    .filter(f -> f.getId().equals(film.getId()))
-                    .findFirst()
-                    .orElseThrow(ValidationException::new);
-        } catch (ValidationException e) {
-            log.info("validation failed for film name: {}", film.getName());
-            throw new ValidationException();
-        }
+        repository.stream()
+                .filter(f -> f.getId().equals(film.getId()))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.info("validation failed for film name: {}", film.getName());
+                    return new ValidationException();
+                });
         repository.removeIf(f -> f.getId().equals(film.getId()));
         repository.add(film);
         log.info("updated film with id: {} and name: {}", film.getId(), film.getName());

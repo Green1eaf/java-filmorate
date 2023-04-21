@@ -33,15 +33,13 @@ public class UserController {
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        try {
-            repository.stream()
-                    .filter(u -> u.getId().equals(user.getId()))
-                    .findFirst()
-                    .orElseThrow(ValidationException::new);
-        } catch (ValidationException e) {
-            log.info("Validation failed for user with name: {}", user.getName());
-            throw new ValidationException();
-        }
+        repository.stream()
+                .filter(u -> u.getId().equals(user.getId()))
+                .findFirst()
+                .orElseThrow(() -> {
+                    log.info("Validation failed for user with name: {}", user.getName());
+                    return new ValidationException();
+                });
         repository.removeIf(u -> u.getId().equals(user.getId()));
         repository.add(user);
         log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
