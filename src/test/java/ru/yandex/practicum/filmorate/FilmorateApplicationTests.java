@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,19 +30,17 @@ class FilmorateApplicationTests {
     private final User user = new User(1, "mail@mail.com", "mata", "Mata Hari",
             LocalDate.of(1986, 3, 14));
 
-    @Test
-    public void findAllFilms() {
-        filmController.addFilm(film);
-        Assertions.assertEquals(2, filmController.findAllFilms().size());
-
+    @BeforeEach
+    public void init() {
+        filmController = new FilmController();
+        userController = new UserController();
     }
 
     @Test
-    public void addFilm() {
-        Assertions.assertEquals(0, filmController.findAllFilms().size());
-        Film testFilm = filmController.addFilm(film);
-        Assertions.assertArrayEquals(List.of(testFilm).toArray(), filmController.findAllFilms().toArray());
+    public void addFilmAndFindAllFilms() {
+        filmController.addFilm(film);
         Assertions.assertEquals(1, filmController.findAllFilms().size());
+        Assertions.assertArrayEquals(List.of(film).toArray(), filmController.findAllFilms().toArray());
     }
 
     @Test
@@ -54,19 +53,16 @@ class FilmorateApplicationTests {
 
     @Test
     public void updateUnknownFilm() {
-        Assertions.assertThrows(ValidationException.class, () -> filmController.updateFilm(new Film(999, "name", "desc",
-                LocalDate.of(2000, 1, 1), 100)));
+        Assertions.assertThrows(ValidationException.class, () -> filmController.updateFilm(
+                new Film(999, "name", "desc",
+                        LocalDate.of(2000, 1, 1), 100)));
     }
 
     @Test
-    public void findAllUsers() {
-        Assertions.assertEquals(2, userController.findAllUsers().size());
-    }
-
-    @Test
-    public void createUser() {
+    public void createUserAndFindAllUsers() {
         userController.createUser(user);
-        Assertions.assertEquals(2, userController.findAllUsers().size());
+        Assertions.assertEquals(1, userController.findAllUsers().size());
+        Assertions.assertArrayEquals(List.of(user).toArray(), userController.findAllUsers().toArray());
     }
 
     @Test
