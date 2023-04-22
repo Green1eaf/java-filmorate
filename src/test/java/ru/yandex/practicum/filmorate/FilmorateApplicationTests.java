@@ -59,18 +59,18 @@ class FilmorateApplicationTests {
     }
 
     @Test
-    void findAllUsers() {
+    public void findAllUsers() {
         Assertions.assertEquals(2, userController.findAllUsers().size());
     }
 
     @Test
-    void createUser() {
+    public void createUser() {
         userController.createUser(user);
         Assertions.assertEquals(2, userController.findAllUsers().size());
     }
 
     @Test
-    void updateUser() throws ValidationException {
+    public void updateUser() throws ValidationException {
         User testUser = userController.createUser(user);
         testUser.setName("UpdateName");
         userController.updateUser(testUser);
