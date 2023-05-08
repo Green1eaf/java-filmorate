@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.annotations.DateReleaseIsValid;
 
@@ -8,9 +7,9 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.Set;
 
 @Data
-@AllArgsConstructor
 public class Film {
 
     private Integer id;
@@ -26,4 +25,22 @@ public class Film {
 
     @Positive
     private int duration;
+
+    private Set<Long> likes;
+
+    public Film(Integer id, String name, String description, LocalDate releaseDate, int duration) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+    }
+
+    public void addLike(long id) {
+        likes.add(id);
+    }
+
+    public void removeLike(long id) {
+        likes.remove(id);
+    }
 }
