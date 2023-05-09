@@ -3,12 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,8 +29,7 @@ public class UserService {
         if (user.getId() == null) {
             user.setId(counter++);
         } else {
-            //TODO обработать исключение
-            System.out.println("Пользователь уже существует");
+            throw new AlreadyExistException("User with id=" + user.getId() + " already exist");
         }
         userStorage.add(user);
         log.info("created user with id: {} and name: {}", user.getId(), user.getName());
@@ -45,38 +47,36 @@ public class UserService {
                     return user;
                 })
                 .orElseThrow(() -> {
-                    log.info("validation failed for user with name: {}", user.getName());
-                    return new ValidationException();
+                    throw new ValidationException("validation failed for user with name: " + user.getName());
                 });
     }
 
-    public User get(int id) {
-        return userStorage.get(id);
-    }
-
-    public void delete(int id) {
-        userStorage.delete(id);
+    public User get(long id) {
+        return Optional.of(userStorage.get(id))
+                .orElseThrow(() -> {
+                    throw new NotExistException("User with id=" + id + " not exist");
+                });
     }
 
     public void addFriend(long id, long friendId) {
-        userStorage.get(id).addFriend(friendId);
-        log.info("for user with id={} added user with id={} in friends list", id, friendId);
-        userStorage.get(friendId).addFriend(id);
-        log.info("for user with id={} added user with id={} in friends list", friendId, id);
+        var user = get(id);
+        get(friendId).addFriend(id);
+        user.addFriend(friendId);
+        log.info("for user with id={} and user with id={} added each other to friends list", id, friendId);
     }
 
     public void removeFriend(long id, long friendId) {
-        userStorage.get(id).removeFriend(friendId);
-        log.info("for user with id={} removed user with id={} from friends list", id, friendId);
-        userStorage.get(friendId).removeFriend(id);
-        log.info("for user with id={} removed user with id={} from friends list", friendId, id);
+        var user = get(id);
+        get(friendId).removeFriend(id);
+        user.removeFriend(friendId);
+        log.info("for user with id={} and user with id={} removed each other from friends list", id, friendId);
     }
 
     public List<User> findAllFriends(long id) {
-        List<User> friendsList = new ArrayList<>();
-        userStorage.get(id).getFriends().forEach(userId -> friendsList.add(userStorage.get(userId)));
         log.info("get all friends for user with id={}", id);
-        return friendsList;
+        return findAll().stream()
+                .filter(user -> user.getFriends().contains(id))
+                .collect(Collectors.toList());
     }
 
     public List<User> findCommonFriends(long id, long otherId) {

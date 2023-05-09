@@ -3,13 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -18,6 +20,7 @@ import java.util.stream.Collectors;
 public class FilmService {
 
     private final FilmStorage filmStorage;
+    private final UserService userService;
     private long counter = 1;
     private static final int DEFAULT_NUMBER_OF_POPULAR_FILMS = 10;
 
@@ -29,14 +32,14 @@ public class FilmService {
         if (film.getId() == null) {
             film.setId(counter++);
         } else {
-            //TODO обработать исключение
+            throw new AlreadyExistException("Film " + film.getName() + " with id=" + film.getId() + " is already exist");
         }
         filmStorage.add(film);
         log.info("added film with id: {} and name: {}", film.getId(), film.getName());
         return film;
     }
 
-    public Film updateFilm(Film film) throws ValidationException {
+    public Film updateFilm(Film film) {
         return filmStorage.findAll().stream()
                 .filter(f -> f.getId().equals(film.getId()))
                 .findFirst()
@@ -47,26 +50,41 @@ public class FilmService {
                     return film;
                 })
                 .orElseThrow(() -> {
-                    log.info("validation failed for film name: {}", film.getName());
-                    return new ValidationException();
+                    throw new ValidationException("validation failed for film name: " + film.getName());
                 });
     }
 
-    public void like(long id, long userId) {
-        filmStorage.get(id).addLike(userId);
-        log.info("like for film with id={} from user with id={}", id, userId);
+    public void like(long filmId, long userId) {
+        userService.get(userId);
+
+        var film = get(filmId);
+
+        if (film.getLikes().contains(userId)) {
+            throw new AlreadyExistException("Like from user with id=" + userId + " is already exist");
+        }
+
+        filmStorage.get(filmId).addLike(userId);
+        log.info("like for film with id={} from user with id={}", filmId, userId);
     }
 
     public void removeLike(long id, long userId) {
-        filmStorage.get(id).removeLike(userId);
+        userService.get(userId);
+        get(id).removeLike(userId);
         log.info("remove like from film with id={}, from user with id={}", id, userId);
     }
 
     public List<Film> findCertainNumberPopularFilms(Integer count) {
-        List<Film> films = filmStorage.findAll();
-        return films.stream()
+        log.info("find " + count + " most popular films");
+        return filmStorage.findAll().stream()
                 .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
                 .limit(count == null ? DEFAULT_NUMBER_OF_POPULAR_FILMS : count)
                 .collect(Collectors.toList());
+    }
+
+    public Film get(long id) {
+        return Optional.of(filmStorage.get(id))
+                .orElseThrow(() -> {
+                    throw new NotExistException("Film with id=" + id + " not exist");
+                });
     }
 }
