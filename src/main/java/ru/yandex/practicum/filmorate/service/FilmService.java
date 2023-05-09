@@ -22,7 +22,6 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private long counter = 1;
-    private static final int DEFAULT_NUMBER_OF_POPULAR_FILMS = 10;
 
     public List<Film> findAll() {
         return filmStorage.findAll();
@@ -40,6 +39,7 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
+        get(film.getId());
         return filmStorage.findAll().stream()
                 .filter(f -> f.getId().equals(film.getId()))
                 .findFirst()
@@ -49,14 +49,11 @@ public class FilmService {
                     log.info("updated film with id: {} and name: {}", film.getId(), film.getName());
                     return film;
                 })
-                .orElseThrow(() -> {
-                    throw new ValidationException("validation failed for film name: " + film.getName());
-                });
+                .orElseThrow(() -> new ValidationException("validation failed for film name: " + film.getName()));
     }
 
     public void like(long filmId, long userId) {
         userService.get(userId);
-
         var film = get(filmId);
 
         if (film.getLikes().contains(userId)) {
@@ -77,14 +74,12 @@ public class FilmService {
         log.info("find " + count + " most popular films");
         return filmStorage.findAll().stream()
                 .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
-                .limit(count == null ? DEFAULT_NUMBER_OF_POPULAR_FILMS : count)
+                .limit(count)
                 .collect(Collectors.toList());
     }
 
     public Film get(long id) {
-        return Optional.of(filmStorage.get(id))
-                .orElseThrow(() -> {
-                    throw new NotExistException("Film with id=" + id + " not exist");
-                });
+        return Optional.ofNullable(filmStorage.get(id))
+                .orElseThrow(() -> new NotExistException("Film with id=" + id + " not exist"));
     }
 }

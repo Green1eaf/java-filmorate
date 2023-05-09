@@ -48,9 +48,7 @@ public class UserService {
                     log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
                     return user;
                 })
-                .orElseThrow(() -> {
-                    throw new ValidationException("validation failed for user with name: " + user.getName());
-                });
+                .orElseThrow(() -> new ValidationException("validation failed for user with name: " + user.getName()));
     }
 
     public User get(long id) {
@@ -87,6 +85,7 @@ public class UserService {
         }
         var userFriends = Optional.ofNullable(get(id).getFriends()).orElse(Collections.emptySet());
         var otherUserFriends = Optional.ofNullable(get(otherId).getFriends()).orElse(Collections.emptySet());
+
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
                 .map(userStorage::get)

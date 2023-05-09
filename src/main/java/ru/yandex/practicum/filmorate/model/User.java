@@ -28,13 +28,13 @@ public class User {
     @Past
     private LocalDate birthday;
 
-    private Set<Long> friends = new HashSet<>();
+    private final Set<Long> friends = new HashSet<>();
 
     public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
-        this.name = name == null || name.isBlank() ? login : name;
+        this.name = name.isEmpty() || name.isBlank() ? login : name;
         this.birthday = birthday;
     }
 

@@ -12,13 +12,9 @@ import java.util.Map;
 public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> storage = new HashMap<>();
-    private static long count = 1;
 
     @Override
     public Film add(Film film) {
-        if (film.getId() == null) {
-            film.setId(count++);
-        }
         storage.put(film.getId(), film);
         return film;
     }
