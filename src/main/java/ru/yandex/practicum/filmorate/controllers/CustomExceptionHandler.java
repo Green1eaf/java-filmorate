@@ -26,7 +26,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseError NotExistHandle(NotExistException exception) {
+    public ResponseError notExistHandle(NotExistException exception) {
         log.error(exception.getMessage());
         return new ResponseError(exception.getMessage(), HttpStatus.NOT_FOUND);
     }
