@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -37,6 +38,7 @@ public class UserService {
     }
 
     public User update(User user) throws ValidationException {
+        get(user.getId());
         return userStorage.findAll().stream()
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
@@ -52,15 +54,14 @@ public class UserService {
     }
 
     public User get(long id) {
-        return Optional.of(userStorage.get(id))
-                .orElseThrow(() -> {
-                    throw new NotExistException("User with id=" + id + " not exist");
-                });
+        return Optional.ofNullable(userStorage.get(id))
+                .orElseThrow(() -> new NotExistException("User with id=" + id + " not exist"));
     }
 
     public void addFriend(long id, long friendId) {
         var user = get(id);
-        get(friendId).addFriend(id);
+        var friend = get(friendId);
+        friend.addFriend(id);
         user.addFriend(friendId);
         log.info("for user with id={} and user with id={} added each other to friends list", id, friendId);
     }
@@ -80,9 +81,15 @@ public class UserService {
     }
 
     public List<User> findCommonFriends(long id, long otherId) {
-        var common = findAllFriends(id);
-        common.retainAll(findAllFriends(otherId));
         log.info("find all commons friend for users id={} and id={}", id, otherId);
-        return common;
+        if (id == otherId) {
+            throw new AlreadyExistException("User is same");
+        }
+        var userFriends = Optional.ofNullable(get(id).getFriends()).orElse(Collections.emptySet());
+        var otherUserFriends = Optional.ofNullable(get(otherId).getFriends()).orElse(Collections.emptySet());
+        return userFriends.stream()
+                .filter(otherUserFriends::contains)
+                .map(userStorage::get)
+                .collect(Collectors.toList());
     }
 }

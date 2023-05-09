@@ -12,13 +12,9 @@ import java.util.Map;
 public class InMemoryUserStorage implements UserStorage {
 
     private final Map<Long, User> storage = new HashMap<>();
-    private static long counter = 1;
 
     @Override
     public User add(User user) {
-        if (user.getId() == null) {
-            user.setId(counter++);
-        }
         storage.put(user.getId(), user);
         return user;
     }
