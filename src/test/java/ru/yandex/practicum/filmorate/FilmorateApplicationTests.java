@@ -29,9 +29,9 @@ class FilmorateApplicationTests {
     @Autowired
     private UserController userController;
 
-    private final Film film = new Film(1L, "Matrix", "About Matrix",
+    private final Film film = new Film(null, "Matrix", "About Matrix",
             LocalDate.of(2000, 10, 10), 100);
-    private final User user = new User(1L, "mail@mail.com", "mata", "Mata Hari",
+    private final User user = new User(null, "mail@mail.com", "mata", "Mata Hari",
             LocalDate.of(1986, 3, 14));
 
     @BeforeEach
@@ -43,7 +43,7 @@ class FilmorateApplicationTests {
     @Test
     public void addFilmAndFindAllFilms() {
         filmController.addFilm(film);
-        Assertions.assertEquals(1, filmController.findAllFilms().size());
+        Assertions.assertEquals(1L, filmController.findAllFilms().size());
         Assertions.assertArrayEquals(List.of(film).toArray(), filmController.findAllFilms().toArray());
     }
 
