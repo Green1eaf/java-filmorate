@@ -29,7 +29,6 @@ public class Film {
 
     private final Set<Long> likes = new HashSet<>();
 
-
     public Film(Long id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
         this.name = name;
