@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.controllers.UserController;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -57,7 +58,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void updateUnknownFilm() {
-        Assertions.assertThrows(ValidationException.class, () -> filmController.updateFilm(
+        Assertions.assertThrows(NotExistException.class, () -> filmController.updateFilm(
                 new Film(999L, "name", "desc",
                         LocalDate.of(2000, 1, 1), 100)));
     }
@@ -79,7 +80,7 @@ class FilmorateApplicationTests {
 
     @Test
     public void updateUnknownUser() {
-        Assertions.assertThrows(ValidationException.class,
+        Assertions.assertThrows(NotExistException.class,
                 () -> userController.updateUser(new User(999L, "name@mail.com", "login", "name",
                         LocalDate.of(2000, 1, 1))));
     }
