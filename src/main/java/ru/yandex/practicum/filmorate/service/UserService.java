@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,7 +16,7 @@ import java.util.List;
 public class UserService {
 
     private final UserStorage userStorage;
-    private int counter = 1;
+    private long counter = 1;
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -55,5 +56,33 @@ public class UserService {
 
     public void delete(int id) {
         userStorage.delete(id);
+    }
+
+    public void addFriend(long id, long friendId) {
+        userStorage.get(id).addFriend(friendId);
+        log.info("for user with id={} added user with id={} in friends list", id, friendId);
+        userStorage.get(friendId).addFriend(id);
+        log.info("for user with id={} added user with id={} in friends list", friendId, id);
+    }
+
+    public void removeFriend(long id, long friendId) {
+        userStorage.get(id).removeFriend(friendId);
+        log.info("for user with id={} removed user with id={} from friends list", id, friendId);
+        userStorage.get(friendId).removeFriend(id);
+        log.info("for user with id={} removed user with id={} from friends list", friendId, id);
+    }
+
+    public List<User> findAllFriends(long id) {
+        List<User> friendsList = new ArrayList<>();
+        userStorage.get(id).getFriends().forEach(userId -> friendsList.add(userStorage.get(userId)));
+        log.info("get all friends for user with id={}", id);
+        return friendsList;
+    }
+
+    public List<User> findCommonFriends(long id, long otherId) {
+        var common = findAllFriends(id);
+        common.retainAll(findAllFriends(otherId));
+        log.info("find all commons friend for users id={} and id={}", id, otherId);
+        return common;
     }
 }

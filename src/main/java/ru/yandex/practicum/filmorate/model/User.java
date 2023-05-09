@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 public class User {
 
-    private Integer id;
+    private Long id;
 
     @NotNull
     @Email
@@ -27,9 +27,9 @@ public class User {
     @Past
     private LocalDate birthday;
 
-    private Set<User> friends;
+    private Set<Long> friends;
 
-    public User(Integer id, String email, String login, String name, LocalDate birthday) {
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
@@ -37,11 +37,11 @@ public class User {
         this.birthday = birthday;
     }
 
-    public boolean addFriend(User friend) {
-        return friends.add(friend);
+    public void addFriend(Long friend) {
+        friends.add(friend);
     }
 
-    public boolean removeFriend(User friend) {
-        return friends.remove(friend);
+    public void removeFriend(Long friend) {
+        friends.remove(friend);
     }
 }
