@@ -12,7 +12,7 @@ import java.util.Set;
 @Data
 public class Film {
 
-    private Integer id;
+    private Long id;
 
     @NotBlank
     private String name;
@@ -28,7 +28,7 @@ public class Film {
 
     private Set<Long> likes;
 
-    public Film(Integer id, String name, String description, LocalDate releaseDate, int duration) {
+    public Film(Long id, String name, String description, LocalDate releaseDate, int duration) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -42,5 +42,9 @@ public class Film {
 
     public void removeLike(long id) {
         likes.remove(id);
+    }
+
+    public Set<Long> getLikes() {
+        return likes;
     }
 }

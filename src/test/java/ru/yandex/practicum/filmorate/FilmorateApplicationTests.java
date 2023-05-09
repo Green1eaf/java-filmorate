@@ -29,9 +29,9 @@ class FilmorateApplicationTests {
     @Autowired
     private UserController userController;
 
-    private final Film film = new Film(1, "Matrix", "About Matrix",
+    private final Film film = new Film(1L, "Matrix", "About Matrix",
             LocalDate.of(2000, 10, 10), 100);
-    private final User user = new User(1, "mail@mail.com", "mata", "Mata Hari",
+    private final User user = new User(1L, "mail@mail.com", "mata", "Mata Hari",
             LocalDate.of(1986, 3, 14));
 
     @BeforeEach
@@ -58,7 +58,7 @@ class FilmorateApplicationTests {
     @Test
     public void updateUnknownFilm() {
         Assertions.assertThrows(ValidationException.class, () -> filmController.updateFilm(
-                new Film(999, "name", "desc",
+                new Film(999L, "name", "desc",
                         LocalDate.of(2000, 1, 1), 100)));
     }
 
@@ -80,7 +80,7 @@ class FilmorateApplicationTests {
     @Test
     public void updateUnknownUser() {
         Assertions.assertThrows(ValidationException.class,
-                () -> userController.updateUser(new User(999, "name@mail.com", "login", "name",
+                () -> userController.updateUser(new User(999L, "name@mail.com", "login", "name",
                         LocalDate.of(2000, 1, 1))));
     }
 }

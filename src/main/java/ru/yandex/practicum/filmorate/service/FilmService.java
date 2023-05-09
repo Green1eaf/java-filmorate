@@ -7,7 +7,10 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,7 +18,8 @@ import java.util.List;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private int counter = 1;
+    private long counter = 1;
+    private static final int DEFAULT_NUMBER_OF_POPULAR_FILMS = 10;
 
     public List<Film> findAll() {
         return filmStorage.findAll();
@@ -46,5 +50,23 @@ public class FilmService {
                     log.info("validation failed for film name: {}", film.getName());
                     return new ValidationException();
                 });
+    }
+
+    public void like(long id, long userId) {
+        filmStorage.get(id).addLike(userId);
+        log.info("like for film with id={} from user with id={}", id, userId);
+    }
+
+    public void removeLike(long id, long userId) {
+        filmStorage.get(id).removeLike(userId);
+        log.info("remove like from film with id={}, from user with id={}", id, userId);
+    }
+
+    public List<Film> findCertainNumberPopularFilms(Integer count) {
+        List<Film> films = filmStorage.findAll();
+        return films.stream()
+                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
+                .limit(count == null ? DEFAULT_NUMBER_OF_POPULAR_FILMS : count)
+                .collect(Collectors.toList());
     }
 }

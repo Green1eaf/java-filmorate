@@ -11,8 +11,8 @@ import java.util.Map;
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final Map<Integer, Film> storage = new HashMap<>();
-    private static int count = 1;
+    private final Map<Long, Film> storage = new HashMap<>();
+    private static long count = 1;
 
     @Override
     public Film add(Film film) {
@@ -30,12 +30,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void delete(int id) {
+    public void delete(long id) {
         storage.remove(id);
     }
 
     @Override
-    public Film get(int id) {
+    public Film get(long id) {
         return storage.get(id);
     }
 
