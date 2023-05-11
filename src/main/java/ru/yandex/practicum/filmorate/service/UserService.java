@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
@@ -15,12 +14,15 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class UserService {
 
     private final UserStorage userStorage;
     private long counter = 1;
+
+    public UserService(UserStorage userStorage) {
+        this.userStorage = userStorage;
+    }
 
     public List<User> findAll() {
         return userStorage.findAll();
@@ -59,15 +61,15 @@ public class UserService {
     public void addFriend(long id, long friendId) {
         var user = get(id);
         var friend = get(friendId);
-        friend.addFriend(id);
-        user.addFriend(friendId);
+        friend.getFriends().add(id);
+        user.getFriends().add(friendId);
         log.info("for user with id={} and user with id={} added each other to friends list", id, friendId);
     }
 
     public void removeFriend(long id, long friendId) {
         var user = get(id);
-        get(friendId).removeFriend(id);
-        user.removeFriend(friendId);
+        get(friendId).getFriends().remove(id);
+        user.getFriends().remove(friendId);
         log.info("for user with id={} and user with id={} removed each other from friends list", id, friendId);
     }
 

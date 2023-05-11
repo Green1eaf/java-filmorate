@@ -37,12 +37,4 @@ public class User {
         this.name = name.isEmpty() || name.isBlank() ? login : name;
         this.birthday = birthday;
     }
-
-    public void addFriend(Long friend) {
-        friends.add(friend);
-    }
-
-    public void removeFriend(Long friend) {
-        friends.remove(friend);
-    }
 }
