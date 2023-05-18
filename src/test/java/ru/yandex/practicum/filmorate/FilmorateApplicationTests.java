@@ -9,9 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.yandex.practicum.filmorate.controllers.FilmController;
 import ru.yandex.practicum.filmorate.controllers.UserController;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,21 +30,21 @@ class FilmorateApplicationTests {
     @Autowired
     private UserController userController;
 
-    private final Film film = new Film(1, "Matrix", "About Matrix",
+    private final Film film = new Film(null, "Matrix", "About Matrix",
             LocalDate.of(2000, 10, 10), 100);
-    private final User user = new User(1, "mail@mail.com", "mata", "Mata Hari",
+    private final User user = new User(null, "mail@mail.com", "mata", "Mata Hari",
             LocalDate.of(1986, 3, 14));
 
     @BeforeEach
     public void init() {
-        filmController = new FilmController();
-        userController = new UserController();
+        filmController = new FilmController(new FilmService(new InMemoryFilmStorage(), new UserService(new InMemoryUserStorage())));
+        userController = new UserController(new UserService(new InMemoryUserStorage()));
     }
 
     @Test
     public void addFilmAndFindAllFilms() {
         filmController.addFilm(film);
-        Assertions.assertEquals(1, filmController.findAllFilms().size());
+        Assertions.assertEquals(1L, filmController.findAllFilms().size());
         Assertions.assertArrayEquals(List.of(film).toArray(), filmController.findAllFilms().toArray());
     }
 
@@ -53,8 +58,8 @@ class FilmorateApplicationTests {
 
     @Test
     public void updateUnknownFilm() {
-        Assertions.assertThrows(ValidationException.class, () -> filmController.updateFilm(
-                new Film(999, "name", "desc",
+        Assertions.assertThrows(NotExistException.class, () -> filmController.updateFilm(
+                new Film(999L, "name", "desc",
                         LocalDate.of(2000, 1, 1), 100)));
     }
 
@@ -75,8 +80,8 @@ class FilmorateApplicationTests {
 
     @Test
     public void updateUnknownUser() {
-        Assertions.assertThrows(ValidationException.class,
-                () -> userController.updateUser(new User(999, "name@mail.com", "login", "name",
+        Assertions.assertThrows(NotExistException.class,
+                () -> userController.updateUser(new User(999L, "name@mail.com", "login", "name",
                         LocalDate.of(2000, 1, 1))));
     }
 }

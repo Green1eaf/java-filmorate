@@ -7,11 +7,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
 
-    private Integer id;
+    private Long id;
 
     @NotNull
     @Email
@@ -26,11 +28,13 @@ public class User {
     @Past
     private LocalDate birthday;
 
-    public User(Integer id, String email, String login, String name, LocalDate birthday) {
+    private final Set<Long> friends = new HashSet<>();
+
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
-        this.name = name == null ? login : name;
+        this.name = name.isEmpty() || name.isBlank() ? login : name;
         this.birthday = birthday;
     }
 }

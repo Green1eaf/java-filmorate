@@ -1,50 +1,57 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/users")
-@Slf4j
+@RequiredArgsConstructor
 public class UserController {
-    private final List<User> repository = new ArrayList<>();
-    private int counter = 1;
+
+    private final UserService userService;
 
     @GetMapping
     public List<User> findAllUsers() {
-        return repository;
+        return userService.findAll();
     }
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        if (user.getId() == null) {
-            user.setId(counter++);
-        }
-        repository.add(user);
-        log.info("created user with id: {} and name: {}", user.getId(), user.getName());
-        return user;
+        return userService.create(user);
+    }
+
+    @GetMapping("/{id}")
+    public User getUser(@PathVariable long id) {
+        return userService.get(id);
     }
 
     @PutMapping
-    public User updateUser(@Valid @RequestBody User user) throws ValidationException {
-        return repository.stream()
-                .filter(u -> u.getId().equals(user.getId()))
-                .findFirst()
-                .map(u -> {
-                    repository.remove(u);
-                    repository.add(user);
-                    log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
-                    return user;
-                })
-                .orElseThrow(() -> {
-                    log.info("validation failed for user with name: {}", user.getName());
-                    return new ValidationException();
-                });
+    public User updateUser(@Valid @RequestBody User user) {
+        return userService.update(user);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public void addFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public void removeFriend(@PathVariable long id, @PathVariable long friendId) {
+        userService.removeFriend(id, friendId);
+    }
+
+    @GetMapping("/{id}/friends")
+    public List<User> findAllFriends(@PathVariable long id) {
+        return userService.findAllFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public List<User> findCommonFriends(@PathVariable long id, @PathVariable long otherId) {
+        return userService.findCommonFriends(id, otherId);
     }
 }
