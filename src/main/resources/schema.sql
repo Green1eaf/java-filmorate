@@ -1,11 +1,4 @@
-DROP TABLE IF EXISTS friendly_relations;
-DROP TABLE IF EXISTS likes;
-DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS film_genre;
-DROP TABLE IF EXISTS films;
-DROP TABLE IF EXISTS mpa_ratings;
-DROP TABLE IF EXISTS genres;
-DROP TABLE IF EXISTS friendship_statuses;
+DROP ALL OBJECTS;
 
 CREATE TABLE users
 (
@@ -15,7 +8,6 @@ CREATE TABLE users
     name      VARCHAR(50),
     birthdate DATE
 );
-CREATE INDEX idx_user_email ON users (email);
 
 CREATE TABLE mpa_ratings
 (
@@ -33,7 +25,6 @@ CREATE TABLE films
     mpa_rating_id       INT          NOT NULL,
     FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (id)
 );
-CREATE INDEX idx_film_name ON films (name);
 
 CREATE TABLE likes
 (
