@@ -34,19 +34,11 @@ CREATE TABLE likes
     FOREIGN KEY (film_id) REFERENCES films (id)
 );
 
-CREATE TABLE friendship_statuses
-(
-    id   LONG PRIMARY KEY,
-    name VARCHAR(50)
-);
-
 CREATE TABLE friendly_relations
 (
     user_id              LONG NOT NULL,
     friend_id            LONG NOT NULL,
-    friendship_status_id LONG NOT NULL,
-    PRIMARY KEY (user_id, friend_id),
-    FOREIGN KEY (friendship_status_id) REFERENCES friendship_statuses (id)
+    PRIMARY KEY (user_id, friend_id)
 );
 
 CREATE TABLE genres
