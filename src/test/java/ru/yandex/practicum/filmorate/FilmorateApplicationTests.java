@@ -15,8 +15,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -30,10 +30,20 @@ class FilmorateApplicationTests {
     @Autowired
     private UserController userController;
 
-    private final Film film = new Film(null, "Matrix", "About Matrix",
-            LocalDate.of(2000, 10, 10), 100);
-    private final User user = new User(null, "mail@mail.com", "mata", "Mata Hari",
-            LocalDate.of(1986, 3, 14));
+    private final Film film = Film.builder()
+            .id(null)
+            .name("Matrix")
+            .description("About Matrix")
+            .releaseDate(LocalDate.of(2000, 10, 10))
+            .duration(100)
+            .build();
+    private final User user = User.builder()
+            .id(null)
+            .email("mail@mail.com")
+            .login("mata")
+            .name("Mata Hari")
+            .birthday(LocalDate.of(1986, 3, 14))
+            .build();
 
     @BeforeEach
     public void init() {
@@ -59,8 +69,13 @@ class FilmorateApplicationTests {
     @Test
     public void updateUnknownFilm() {
         Assertions.assertThrows(NotExistException.class, () -> filmController.updateFilm(
-                new Film(999L, "name", "desc",
-                        LocalDate.of(2000, 1, 1), 100)));
+                Film.builder()
+                        .id(999L)
+                        .name("name")
+                        .description("desc")
+                        .releaseDate(LocalDate.of(2000, 1, 1))
+                        .duration(100)
+                        .build()));
     }
 
     @Test
@@ -81,7 +96,12 @@ class FilmorateApplicationTests {
     @Test
     public void updateUnknownUser() {
         Assertions.assertThrows(NotExistException.class,
-                () -> userController.updateUser(new User(999L, "name@mail.com", "login", "name",
-                        LocalDate.of(2000, 1, 1))));
+                () -> userController.updateUser(User.builder()
+                        .id(999L)
+                        .email("name@mail.com")
+                        .login("login")
+                        .name("name")
+                        .birthday(LocalDate.of(2000, 1, 1))
+                        .build()));
     }
 }
