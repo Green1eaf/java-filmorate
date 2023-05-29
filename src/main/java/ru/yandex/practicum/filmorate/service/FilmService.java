@@ -1,12 +1,13 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,7 +22,7 @@ public class FilmService {
     private final UserService userService;
     private long counter = 1;
 
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -63,13 +64,13 @@ public class FilmService {
             throw new AlreadyExistException("Like from user with id=" + userId + " is already exist");
         }
 
-        filmStorage.get(filmId).addLike(userId);
+        filmStorage.get(filmId).getLikes().add(userId);
         log.info("like for film with id={} from user with id={}", filmId, userId);
     }
 
     public void removeLike(long id, long userId) {
         userService.get(userId);
-        get(id).removeLike(userId);
+        get(id).getLikes().remove(userId);
         log.info("remove like from film with id={}, from user with id={}", id, userId);
     }
 
