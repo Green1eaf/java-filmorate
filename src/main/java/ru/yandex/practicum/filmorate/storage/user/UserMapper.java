@@ -17,8 +17,9 @@ public class UserMapper implements RowMapper<User> {
                 .id(rs.getLong("id"))
                 .email(rs.getString("email"))
                 .name(rs.getString("name"))
-                .birthdate((rs.getDate("birthdate")).toLocalDate())
-                .friends(parseToSet(rs.getString("friends")))
+                .login(rs.getString("login"))
+                .birthday((rs.getDate("birthdate")).toLocalDate())
+//                .friends(parseToSet(rs.getString("friends")))
                 .build();
     }
 

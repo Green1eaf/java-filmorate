@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-    private long counter = 1;
 
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
         this.userStorage = userStorage;
@@ -33,9 +32,7 @@ public class UserService {
         if (user.getName().isEmpty() || user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (user.getId() == null) {
-            user.setId(counter++);
-        } else {
+        if (user.getId() != null) {
             throw new AlreadyExistException("User with id=" + user.getId() + " already exist");
         }
         userStorage.add(user);
@@ -49,8 +46,7 @@ public class UserService {
                 .filter(u -> u.getId().equals(user.getId()))
                 .findFirst()
                 .map(u -> {
-                    userStorage.delete(u.getId());
-                    userStorage.add(user);
+                    userStorage.update(user);
                     log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
                     return user;
                 })

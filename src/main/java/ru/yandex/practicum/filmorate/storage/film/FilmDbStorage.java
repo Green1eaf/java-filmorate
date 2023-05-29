@@ -18,9 +18,9 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film add(Film film) {
-        jdbcTemplate.update("INSERT INTO films (id, name, description, release_date, duration_in_minutes, " +
-                        "MPA_RATING_ID) VALUES (?,?,?,?,?,?)", film.getId(), film.getName(), film.getDescription(),
-                film.getReleaseDate(), film.getDuration());
+        jdbcTemplate.update("INSERT INTO films (id, name, description, release_date, duration_in_minutes, mpa_rating_id) " +
+                        "VALUES (?,?,?,?,?,?)", film.getId(), film.getName(), film.getDescription(),
+                film.getReleaseDate(), film.getDuration(), film.getMpaRatingId());
         return film;
     }
 
@@ -38,10 +38,11 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film get(long id) {
-        return jdbcTemplate.query("SELECT * FROM films WHERE id=?", new Object[]{id}, new BeanPropertyRowMapper<>(Film.class))
-                .stream()
+        Film result = jdbcTemplate.query("SELECT * FROM films WHERE id=?", new Object[]{id},
+                        new BeanPropertyRowMapper<>(Film.class)).stream()
                 .findFirst()
                 .orElse(null);
+        return result;
     }
 
     @Override
