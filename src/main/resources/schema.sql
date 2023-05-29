@@ -23,22 +23,24 @@ CREATE TABLE films
     release_date        DATE         NOT NULL,
     duration_in_minutes INT          NOT NULL,
     mpa_rating_id       INT          NOT NULL,
-    FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (id)
+    FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (id) ON DELETE CASCADE
 );
 
 CREATE TABLE likes
 (
     user_id LONG NOT NULL,
     film_id LONG NOT NULL,
-    FOREIGN KEY (user_id) REFERENCES users (id),
-    FOREIGN KEY (film_id) REFERENCES films (id)
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
 );
 
 CREATE TABLE friendly_relations
 (
     user_id              LONG NOT NULL,
     friend_id            LONG NOT NULL,
-    PRIMARY KEY (user_id, friend_id)
+    PRIMARY KEY (user_id, friend_id),
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (friend_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
 CREATE TABLE genres
@@ -52,6 +54,6 @@ CREATE TABLE film_genre
     film_id  LONG NOT NULL,
     genre_id LONG NOT NULL,
     PRIMARY KEY (film_id, genre_id),
-    FOREIGN KEY (film_id) REFERENCES films (id),
-    FOREIGN KEY (genre_id) REFERENCES genres (id)
-)
+    FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
+    FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE
+);

@@ -15,8 +15,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.UserService;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.inmemory.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -42,7 +42,7 @@ class FilmorateApplicationTests {
             .email("mail@mail.com")
             .login("mata")
             .name("Mata Hari")
-            .birthday(LocalDate.of(1986, 3, 14))
+            .birthdate(LocalDate.of(1986, 3, 14))
             .build();
 
     @BeforeEach
@@ -101,7 +101,7 @@ class FilmorateApplicationTests {
                         .email("name@mail.com")
                         .login("login")
                         .name("name")
-                        .birthday(LocalDate.of(2000, 1, 1))
+                        .birthdate(LocalDate.of(2000, 1, 1))
                         .build()));
     }
 }
