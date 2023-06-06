@@ -51,7 +51,7 @@ CREATE TABLE genres
 
 CREATE TABLE film_genre
 (
-    film_id  LONG PRIMARY KEY,
+    film_id  LONG NOT NULL,
     genre_id LONG NOT NULL,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE,
     FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE

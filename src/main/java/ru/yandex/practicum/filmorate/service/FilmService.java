@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -20,7 +19,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
-    private long counter = 1;
 
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
@@ -31,10 +29,8 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
-    public Film addFilm(Film film) {
-        if (film.getId() == null) {
-            film.setId(counter++);
-        } else {
+    public Film create(Film film) {
+        if (film.getId() != null) {
             throw new AlreadyExistException("Film " + film.getName() + " with id=" + film.getId() + " is already exist");
         }
         filmStorage.add(film);
@@ -44,16 +40,16 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         get(film.getId());
-        return filmStorage.findAll().stream()
-                .filter(f -> f.getId().equals(film.getId()))
-                .findFirst()
-                .map(f -> {
-                    filmStorage.delete(f.getId());
-                    filmStorage.add(film);
-                    log.info("updated film with id: {} and name: {}", film.getId(), film.getName());
-                    return film;
-                })
-                .orElseThrow(() -> new ValidationException("validation failed for film name: " + film.getName()));
+        return filmStorage.update(film);
+//        return filmStorage.findAll().stream()
+//                .filter(f -> f.getId().equals(film.getId()))
+//                .findFirst()
+//                .map(f -> {
+//                    filmStorage.update(film);
+//                    log.info("updated film with id: {} and name: {}", film.getId(), film.getName());
+//                    return film;
+//                })
+//                .orElseThrow(() -> new ValidationException("validation failed for film name: " + film.getName()));
     }
 
     public void like(long filmId, long userId) {
@@ -77,11 +73,12 @@ public class FilmService {
     public List<Film> findCertainNumberPopularFilms(Integer count) {
         log.info("find " + count + " most popular films");
         return filmStorage.findAll().stream()
-                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).reversed())
+                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).thenComparing(Film::getId).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
+    //TODO
     public Film get(long id) {
         return Optional.ofNullable(filmStorage.get(id))
                 .orElseThrow(() -> new NotExistException("Film with id=" + id + " not exist"));

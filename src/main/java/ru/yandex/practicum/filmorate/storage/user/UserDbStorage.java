@@ -70,4 +70,11 @@ public class UserDbStorage implements UserStorage {
     public void removeFriend(long userId, long friendId) {
         jdbcTemplate.update("DELETE FROM friendly_relations WHERE user_id=? AND friend_id=?", userId, friendId);
     }
+
+    public List<User> findAllFriends(long id) {
+        return jdbcTemplate.query("SELECT u.* FROM users u " +
+                        "JOIN friendly_relations f ON f.friend_id=u.id " +
+                        "WHERE f.user_id=?",
+                new UserMapper(), id);
+    }
 }

@@ -3,7 +3,8 @@ package ru.yandex.practicum.filmorate.storage.mpa_rating;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.model.MpaRating;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
@@ -17,21 +18,24 @@ public class MpaRatingDbStorage implements MpaRatingStorage {
     }
 
     @Override
-    public void add(MpaRating mpaRating) {
-        jdbcTemplate.update("INSERT INTO mpa_ratings (id, name) VALUES (?,?)", mpaRating.getId(), mpaRating.getName());
+    public void add(Mpa mpa) {
+        jdbcTemplate.update("INSERT INTO mpa_ratings (id, name) VALUES (?,?)", mpa.getId(), mpa.getName());
     }
 
     @Override
-    public void update(MpaRating mpaRating) {
-        jdbcTemplate.update("UPDATE mpa_ratings SET name=? WHERE id=?", mpaRating.getName(), mpaRating.getId());
+    public void update(Mpa mpa) {
+        jdbcTemplate.update("UPDATE mpa_ratings SET name=? WHERE id=?", mpa.getName(), mpa.getId());
     }
 
     @Override
-    public MpaRating get(long id) {
-        return jdbcTemplate.query("SELECT * FROM mpa_ratings WHERE id=?", new Object[]{id}, new BeanPropertyRowMapper<>(MpaRating.class))
+    public Mpa get(long id) {
+        var names = jdbcTemplate.query("SELECT * FROM mpa_ratings WHERE id=?", new Object[]{id},
+                (rs, rowNum) -> new Mpa(rs.getLong("id"), rs.getString("name")));
+        var name = names
                 .stream()
                 .findFirst()
-                .orElse(null);
+                .orElseThrow(()-> new NotExistException("Rating with id=" + id + " not exists"));
+        return name;
     }
 
     @Override
@@ -40,7 +44,7 @@ public class MpaRatingDbStorage implements MpaRatingStorage {
     }
 
     @Override
-    public List<MpaRating> getAll() {
-        return jdbcTemplate.query("SELECT * FROM mpa_ratings", new BeanPropertyRowMapper<>(MpaRating.class));
+    public List<Mpa> getAll() {
+        return jdbcTemplate.query("SELECT * FROM mpa_ratings", new BeanPropertyRowMapper<>(Mpa.class));
     }
 }

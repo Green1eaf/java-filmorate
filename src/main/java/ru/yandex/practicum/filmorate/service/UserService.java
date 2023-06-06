@@ -59,25 +59,20 @@ public class UserService {
     }
 
     public void addFriend(long id, long friendId) {
-        var user = get(id);
-        var friend = get(friendId);
-        friend.getFriends().add(id);
-        user.getFriends().add(friendId);
+        get(id);
+        get(friendId);
+        userStorage.addFriend(id, friendId);
         log.info("for user with id={} and user with id={} added each other to friends list", id, friendId);
     }
 
     public void removeFriend(long id, long friendId) {
-        var user = get(id);
-        get(friendId).getFriends().remove(id);
-        user.getFriends().remove(friendId);
+        userStorage.removeFriend(id, friendId);
         log.info("for user with id={} and user with id={} removed each other from friends list", id, friendId);
     }
 
     public List<User> findAllFriends(long id) {
         log.info("get all friends for user with id={}", id);
-        return findAll().stream()
-                .filter(user -> user.getFriends().contains(id))
-                .collect(Collectors.toList());
+        return userStorage.findAllFriends(id);
     }
 
     public List<User> findCommonFriends(long id, long otherId) {
@@ -85,12 +80,11 @@ public class UserService {
         if (id == otherId) {
             throw new AlreadyExistException("User is same");
         }
-        var userFriends = Optional.ofNullable(get(id).getFriends()).orElse(Collections.emptySet());
-        var otherUserFriends = Optional.ofNullable(get(otherId).getFriends()).orElse(Collections.emptySet());
+        var userFriends = Optional.ofNullable(findAllFriends(id)).orElse(Collections.emptyList());
+        var otherUserFriends = Optional.ofNullable(findAllFriends(otherId)).orElse(Collections.emptyList());
 
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
-                .map(userStorage::get)
                 .collect(Collectors.toList());
     }
 }

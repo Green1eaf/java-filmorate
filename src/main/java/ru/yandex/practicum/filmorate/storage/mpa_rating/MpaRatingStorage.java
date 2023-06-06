@@ -1,17 +1,17 @@
 package ru.yandex.practicum.filmorate.storage.mpa_rating;
 
-import ru.yandex.practicum.filmorate.model.MpaRating;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.util.List;
 
 public interface MpaRatingStorage {
-    void add(MpaRating mpaRating);
+    void add(Mpa mpa);
 
-    void update(MpaRating mpaRating);
+    void update(Mpa mpa);
 
-    MpaRating get(long id);
+    Mpa get(long id);
 
     void delete(long id);
 
-    List<MpaRating> getAll();
+    List<Mpa> getAll();
 }
