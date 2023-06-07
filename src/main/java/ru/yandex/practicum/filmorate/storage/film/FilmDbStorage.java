@@ -5,17 +5,20 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.GenreService;
-import ru.yandex.practicum.filmorate.service.MpaRatingService;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.mpa_rating.MpaRatingStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Repository
@@ -23,18 +26,19 @@ import java.util.stream.Collectors;
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final MpaRatingService mpaRatingService;
+    private final MpaRatingStorage mpaRatingStorage;
     private final GenreService genreService;
     private final LikeStorage likeStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaRatingService mpaRatingService, GenreService genreService, LikeStorage likeStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaRatingStorage mpaRatingService, GenreService genreService, LikeStorage likeStorage) {
         this.jdbcTemplate = jdbcTemplate;
-        this.mpaRatingService = mpaRatingService;
+        this.mpaRatingStorage = mpaRatingService;
         this.genreService = genreService;
         this.likeStorage = likeStorage;
     }
 
     @Override
+    @Transactional
     public Film add(Film film) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -58,6 +62,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    @Transactional
     public Film update(Film film) {
         if (film == null) {
             throw new NotExistException("Передан пустой аргумент!");
@@ -72,24 +77,20 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId(),
                 film.getId()) != 0) {
-            List<Genre> genres = null;
-            if (film.getGenres()!= null) {
-                genres = film.getGenres().stream()
-                        .distinct()
-                        .sorted(Comparator.comparing(Genre::getId))
-                        .collect(Collectors.toList());
-            }
+            var genres = Optional.ofNullable(film.getGenres()).stream()
+                    .flatMap(List::stream)
+                    .distinct()
+                    .collect(Collectors.toList());
             film.setGenres(genres);
             genreService.update(film.getId(), genres);
-
             return film;
         } else {
             throw new NotExistException("Фильм с ID=" + film.getId() + " не найден!");
         }
-
     }
 
     @Override
+    @Transactional
     public void delete(long id) {
         jdbcTemplate.update("DELETE FROM films WHERE id=?", id);
     }
@@ -103,29 +104,24 @@ public class FilmDbStorage implements FilmStorage {
         if (film == null) {
             throw new NotExistException("film with id=" + id + " not exists");
         }
-        film.setMpa(mpaRatingService.get(film.getMpa().getId()));
 
-        var genres = new LinkedHashSet<>(genreService.getAllByFilmId(film.getId()));
-        List<Genre> genreList = new ArrayList<>(genres);
-        film.setGenres(genreList);
-//        film.getGenres().addAll(genres.size() == 0 ? Collections.emptySet() : genres);
-        film.setLikes(new HashSet<>(likeStorage.getAll(film.getId())));
-//        film.getLikes().addAll(likeStorage.getAll(film.getId()));
+        film.setMpa(mpaRatingStorage.get(film.getMpa().getId()));
+        film.setGenres(genreService.getAllByFilmId(id));
+        film.setLikes(new HashSet<>(likeStorage.getAll(id)));
         return film;
     }
 
     @Override
     public List<Film> findAll() {
-        var result = jdbcTemplate.query("SELECT * FROM films", (rs, rowNum) -> new Film(
+        return jdbcTemplate.query("SELECT * FROM films", (rs, rowNum) -> new Film(
                 rs.getLong("id"),
                 rs.getString("name"),
                 rs.getString("description"),
                 rs.getDate("release_date").toLocalDate(),
                 rs.getInt("duration"),
-                mpaRatingService.get(rs.getLong("mpa_rating_id")),
+                mpaRatingStorage.get(rs.getLong("mpa_rating_id")),
                 new HashSet<>(likeStorage.getAll(rs.getLong("id"))),
                 genreService.getAllByFilmId(rs.getLong("id"))
         ));
-        return result;
     }
 }

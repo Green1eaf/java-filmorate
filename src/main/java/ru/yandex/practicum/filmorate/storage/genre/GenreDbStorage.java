@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage.genre;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
@@ -18,18 +19,18 @@ public class GenreDbStorage implements GenreStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     @Override
+    @Transactional
     public void add(long filmId, List<Genre> genres) {
         if (genres != null) {
             for (Genre genre : genres) {
                 jdbcTemplate.update("INSERT INTO film_genre (film_id, genre_id) VALUES (?,?)", filmId, genre.getId());
-
             }
         }
     }
 
     @Override
+    @Transactional
     public void update(long filmId, List<Genre> genres) {
         delete(filmId);
         add(filmId, genres);
@@ -44,6 +45,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
+    @Transactional
     public void delete(long filmId) {
         jdbcTemplate.update("DELETE FROM film_genre WHERE film_id=?", filmId);
     }
@@ -55,10 +57,9 @@ public class GenreDbStorage implements GenreStorage {
 
     @Override
     public List<Genre> getAllByFilmId(long id) {
-        List<Genre> genre = new ArrayList<>(jdbcTemplate.query("SELECT * FROM genres g LEFT JOIN film_genre f ON g.id=f.genre_id " +
+        var genre = jdbcTemplate.query("SELECT * FROM genres g LEFT JOIN film_genre f ON g.id=f.genre_id " +
                         "WHERE f.film_id=?", new Object[]{id},
-                new BeanPropertyRowMapper<>(Genre.class)));
-        return CollectionUtils.isEmpty(genre) ? Collections.emptyList() :
-                genre;
+                new BeanPropertyRowMapper<>(Genre.class));
+        return CollectionUtils.isEmpty(genre) ? Collections.emptyList() : genre;
     }
 }

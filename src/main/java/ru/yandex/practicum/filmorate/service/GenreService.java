@@ -5,6 +5,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class GenreService {
@@ -16,12 +17,11 @@ public class GenreService {
     }
 
     public void addAll(long filmId, List<Genre> genres) {
-            genreStorage.add(filmId, genres);
+        genreStorage.add(filmId, genres);
     }
 
     public void update(long filmId, List<Genre> genres) {
-        delete(filmId);
-        addAll(filmId, genres);
+        genreStorage.update(filmId, genres);
     }
 
     public Genre get(long id) {
@@ -38,6 +38,9 @@ public class GenreService {
 
     public List<Genre> getAllByFilmId(long id) {
         return Optional.ofNullable(genreStorage.getAllByFilmId(id))
-                .orElse(Collections.emptyList());
+                .orElse(Collections.emptyList()).stream()
+                .distinct()
+                .sorted(Comparator.comparing(Genre::getId))
+                .collect(Collectors.toList());
     }
 }

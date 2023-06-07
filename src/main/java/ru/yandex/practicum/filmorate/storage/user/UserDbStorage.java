@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -24,6 +25,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    @Transactional
     public User create(User user) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
@@ -42,6 +44,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    @Transactional
     public User update(User user) {
         jdbcTemplate.update("UPDATE users SET email=?, login=?, name=?, birthdate=? WHERE id=?",
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
@@ -49,6 +52,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
+    @Transactional
     public void delete(long id) {
         jdbcTemplate.update("DELETE FROM users WHERE id=?", id);
     }
@@ -66,10 +70,12 @@ public class UserDbStorage implements UserStorage {
                 .orElse(null);
     }
 
+    @Transactional
     public void addFriend(long userId, long friendId) {
         jdbcTemplate.update("INSERT INTO friendly_relations (user_id, friend_id) VALUES (?,?)", userId, friendId);
     }
 
+    @Transactional
     public void removeFriend(long userId, long friendId) {
         jdbcTemplate.update("DELETE FROM friendly_relations WHERE user_id=? AND friend_id=?", userId, friendId);
     }
