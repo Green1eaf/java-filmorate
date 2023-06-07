@@ -8,6 +8,7 @@ CREATE TABLE users
     name      VARCHAR(50),
     birthdate DATE
 );
+CREATE INDEX idx_users_id ON users(id);
 
 CREATE TABLE mpa_ratings
 (

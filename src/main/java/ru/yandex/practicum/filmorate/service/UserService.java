@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
@@ -20,7 +19,7 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(UserStorage userStorage) {
         this.userStorage = userStorage;
     }
 
@@ -35,22 +34,15 @@ public class UserService {
         if (user.getId() != null) {
             throw new AlreadyExistException("User with id=" + user.getId() + " already exist");
         }
-        userStorage.add(user);
+        userStorage.create(user);
         log.info("created user with id: {} and name: {}", user.getId(), user.getName());
         return user;
     }
 
     public User update(User user) throws ValidationException {
         get(user.getId());
-        return userStorage.findAll().stream()
-                .filter(u -> u.getId().equals(user.getId()))
-                .findFirst()
-                .map(u -> {
-                    userStorage.update(user);
-                    log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
-                    return user;
-                })
-                .orElseThrow(() -> new ValidationException("validation failed for user with name: " + user.getName()));
+        log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
+        return userStorage.update(user);
     }
 
     public User get(long id) {

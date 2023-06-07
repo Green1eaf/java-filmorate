@@ -32,7 +32,7 @@ class FilmorateApplicationTests {
                 .name("test")
                 .birthday(LocalDate.of(1986, 3, 14))
                 .build();
-        userDbStorage.add(expected);
+        userDbStorage.create(expected);
         expected.setId(6L);
         User test = userDbStorage.get(6);
         Assertions.assertEquals(expected, test);
