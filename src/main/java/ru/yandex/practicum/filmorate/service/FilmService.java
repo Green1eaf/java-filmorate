@@ -30,7 +30,7 @@ public class FilmService {
         if (film.getId() != null) {
             throw new AlreadyExistException("Film " + film.getName() + " with id=" + film.getId() + " is already exist");
         }
-        filmStorage.add(film);
+        filmStorage.create(film);
         log.info("added film with id: {} and name: {}", film.getId(), film.getName());
         return film;
     }

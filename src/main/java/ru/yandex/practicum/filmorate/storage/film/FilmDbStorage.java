@@ -39,7 +39,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     @Transactional
-    public Film add(Film film) {
+    public Film create(Film film) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcTemplate.update(connection -> {

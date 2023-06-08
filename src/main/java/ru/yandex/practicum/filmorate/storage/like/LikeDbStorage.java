@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.like;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,17 +15,6 @@ public class LikeDbStorage implements LikeStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    @Override
-    @Transactional
-    public void add(long userId, long filmId) {
-        jdbcTemplate.update("INSERT INTO likes (user_id, film_id) VALUES (?,?)", userId, filmId);
-    }
-
-    @Override
-    @Transactional
-    public void delete(long userId, long filmId) {
-        jdbcTemplate.update("DELETE FROM likes WHERE film_id=? AND user_id=?", filmId, userId);
-    }
 
     @Override
     public List<Long> getAll(long filmId) {
