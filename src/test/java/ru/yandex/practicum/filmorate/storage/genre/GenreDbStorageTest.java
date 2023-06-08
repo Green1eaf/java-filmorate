@@ -27,11 +27,11 @@ class GenreDbStorageTest {
 
     private final GenreStorage genreStorage;
     private final FilmStorage filmStorage;
-    private Film FILM;
+    private Film film;
 
     @BeforeEach
     public void init() {
-        FILM = Film.builder()
+        film = Film.builder()
                 .name("name")
                 .description("desc")
                 .releaseDate(LocalDate.of(2000, 1, 1))
@@ -45,11 +45,11 @@ class GenreDbStorageTest {
 
     @Test
     void add() {
-        FILM = filmStorage.create(FILM);
-        genreStorage.add(FILM.getId(), List.of(new Genre(1L, "Комедия")));
-        FILM = filmStorage.get(FILM.getId());
+        film = filmStorage.create(film);
+        genreStorage.add(film.getId(), List.of(new Genre(1L, "Комедия")));
+        film = filmStorage.get(film.getId());
         assertArrayEquals(List.of(new Genre(1L, "Комедия")).toArray(),
-                FILM.getGenres().toArray());
+                film.getGenres().toArray());
     }
 
     @Test

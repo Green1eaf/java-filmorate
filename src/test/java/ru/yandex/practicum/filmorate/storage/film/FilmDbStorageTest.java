@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmDbStorageTest {
 
     private final FilmStorage filmStorage;
-    private Film FILM;
+    private Film film;
 
     @BeforeEach
     public void init() {
-        FILM = Film.builder()
+        film = Film.builder()
                 .name("test")
                 .description("desc")
                 .releaseDate(LocalDate.of(2000, 1, 1))
@@ -37,19 +37,19 @@ class FilmDbStorageTest {
                 .genres(Collections.emptyList())
                 .likes(Collections.emptySet())
                 .build();
-        filmStorage.create(FILM);
-        FILM.setId(1L);
+        filmStorage.create(film);
+        film.setId(1L);
     }
 
     @Test
     void create() {
-        assertEquals(FILM, filmStorage.get(FILM.getId()));
+        assertEquals(film, filmStorage.get(film.getId()));
     }
 
     @Test
     void update() {
         var updatedFilm = Film.builder()
-                .id(FILM.getId())
+                .id(film.getId())
                 .name("updated")
                 .description("upDesc")
                 .releaseDate(LocalDate.of(2001, 2, 2))
@@ -61,19 +61,19 @@ class FilmDbStorageTest {
 
     @Test
     void delete() {
-        FILM.setMpa(new Mpa(1L, "G"));
-        assertEquals(FILM, filmStorage.get(FILM.getId()));
-        filmStorage.delete(FILM.getId());
-        assertThrows(NotExistException.class, () -> filmStorage.get(FILM.getId()));
+        film.setMpa(new Mpa(1L, "G"));
+        assertEquals(film, filmStorage.get(film.getId()));
+        filmStorage.delete(film.getId());
+        assertThrows(NotExistException.class, () -> filmStorage.get(film.getId()));
     }
 
     @Test
     void get() {
-        assertEquals(FILM, filmStorage.get(FILM.getId()));
+        assertEquals(film, filmStorage.get(film.getId()));
     }
 
     @Test
     void findAll() {
-        assertArrayEquals(List.of(FILM).toArray(), filmStorage.findAll().toArray());
+        assertArrayEquals(List.of(film).toArray(), filmStorage.findAll().toArray());
     }
 }

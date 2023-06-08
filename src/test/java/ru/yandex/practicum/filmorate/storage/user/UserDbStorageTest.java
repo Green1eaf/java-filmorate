@@ -24,19 +24,19 @@ class UserDbStorageTest {
     private static final long USER_ID = 1;
     private static final long FRIEND_ID = 2;
     private final UserStorage userStorage;
-    private User USER;
+    private User user;
 
     @BeforeEach
     public void init() {
-        USER = new User(null, "email@ya.com", "login", "name",
+        user = new User(null, "email@ya.com", "login", "name",
                 LocalDate.of(1986, 3, 14), null);
-        userStorage.create(USER);
-        USER.setId(USER_ID);
+        userStorage.create(user);
+        user.setId(USER_ID);
     }
 
     @Test
     void create() {
-        assertEquals(USER, userStorage.get(USER.getId()));
+        assertEquals(user, userStorage.get(user.getId()));
     }
 
     @Test
@@ -53,19 +53,19 @@ class UserDbStorageTest {
 
     @Test
     void delete() {
-        assertEquals(USER, userStorage.get(USER.getId()));
-        userStorage.delete(USER.getId());
-        assertNull(userStorage.get(USER.getId()));
+        assertEquals(user, userStorage.get(user.getId()));
+        userStorage.delete(user.getId());
+        assertNull(userStorage.get(user.getId()));
     }
 
     @Test
     void findAll() {
-        assertArrayEquals(List.of(USER).toArray(), userStorage.findAll().toArray());
+        assertArrayEquals(List.of(user).toArray(), userStorage.findAll().toArray());
     }
 
     @Test
     void get() {
-        assertEquals(USER, userStorage.get(USER.getId()));
+        assertEquals(user, userStorage.get(user.getId()));
     }
 
     @Test
