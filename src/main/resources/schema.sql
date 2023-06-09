@@ -56,9 +56,6 @@ CREATE TABLE IF NOT EXISTS film_genre
     FOREIGN KEY (genre_id) REFERENCES genres (id) ON DELETE CASCADE
 );
 
-DELETE FROM mpa_ratings;
-DELETE FROM genres;
-
 INSERT INTO mpa_ratings (name)
 VALUES ('G'),
        ('PG'),
