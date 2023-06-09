@@ -12,11 +12,9 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
-    private final FilmStorage filmStorage;
 
-    public FilmController(FilmService filmService, FilmStorage filmStorage) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
-        this.filmStorage = filmStorage;
     }
 
     @GetMapping
@@ -31,7 +29,7 @@ public class FilmController {
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-        return filmStorage.update(film);
+        return filmService.update(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
