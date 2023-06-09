@@ -23,9 +23,11 @@ public class GenreDbStorage implements GenreStorage {
     @Transactional
     public void add(long filmId, List<Genre> genres) {
         if (genres != null) {
+            List<Object[]> batchArgs = new ArrayList<>();
             for (Genre genre : genres) {
-                jdbcTemplate.update("INSERT INTO film_genre (film_id, genre_id) VALUES (?,?)", filmId, genre.getId());
+                batchArgs.add(new Object[]{filmId, genre.getId()});
             }
+            jdbcTemplate.batchUpdate("INSERT INTO film_genre (film_id, genre_id) VALUES (?,?)", batchArgs);
         }
     }
 
