@@ -1,16 +1,23 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.yandex.practicum.filmorate.annotations.DateReleaseIsValid;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
-import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Film {
 
     private Long id;
@@ -22,26 +29,16 @@ public class Film {
     private String description;
 
     @DateReleaseIsValid
+    @NotNull
     private LocalDate releaseDate;
 
     @Positive
     private int duration;
 
-    private final Set<Long> likes = new HashSet<>();
+    @NotNull
+    private Mpa mpa;
 
-    public Film(Long id, String name, String description, LocalDate releaseDate, int duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
+    private Set<Long> likes;
 
-    public void addLike(long id) {
-        likes.add(id);
-    }
-
-    public void removeLike(long id) {
-        likes.remove(id);
-    }
+    private List<Genre> genres;
 }
