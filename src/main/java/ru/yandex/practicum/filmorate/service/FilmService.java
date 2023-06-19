@@ -73,4 +73,8 @@ public class FilmService {
     public Film update(Film film) {
         return filmStorage.update(film);
     }
+
+    public void removeById(long filmId) {
+        filmStorage.delete(filmId);
+    }
 }
