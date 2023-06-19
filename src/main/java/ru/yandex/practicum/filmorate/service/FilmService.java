@@ -76,5 +76,6 @@ public class FilmService {
 
     public void removeById(long filmId) {
         filmStorage.delete(filmId);
+        log.info("remove film with id={}", filmId);
     }
 }

@@ -83,5 +83,6 @@ public class UserService {
 
     public void removeById(long userId) {
         userStorage.delete(userId);
+        log.info("remove user with id={}", userId);
     }
 }
