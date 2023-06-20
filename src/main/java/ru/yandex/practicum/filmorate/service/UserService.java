@@ -63,6 +63,7 @@ public class UserService {
     }
 
     public List<User> findAllFriends(long id) {
+        get(id);
         log.info("get all friends for user with id={}", id);
         return userStorage.findAllFriends(id);
     }
@@ -78,5 +79,10 @@ public class UserService {
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
                 .collect(Collectors.toList());
+    }
+
+    public void removeById(long userId) {
+        userStorage.delete(userId);
+        log.info("remove user with id={}", userId);
     }
 }
