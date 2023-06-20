@@ -37,7 +37,6 @@ class GenreDbStorageTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(100)
                 .mpa(new Mpa(1L, "G"))
-                .likes(Collections.emptySet())
                 .genres(Collections.emptyList())
                 .build();
     }
