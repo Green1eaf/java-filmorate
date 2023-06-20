@@ -6,6 +6,8 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.storage.user.UserEventDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collections;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final UserEventDbStorage userEventDbStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage,UserEventDbStorage userEventDbStorage) {
         this.userStorage = userStorage;
+        this.userEventDbStorage = userEventDbStorage;
     }
 
     public List<User> findAll() {
@@ -42,6 +46,13 @@ public class UserService {
     public User update(User user) throws ValidationException {
         get(user.getId());
         log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
+        UserEvent userEvent = new UserEvent();
+        userEvent.setTimestamp(System.currentTimeMillis());
+        userEvent.setUserId(user.getId());
+        userEvent.setEventType("USER");
+        userEvent.setOperation("UPDATE");
+        userEvent.setEntityId(user.getId());
+        userEventDbStorage.save(userEvent);
         return userStorage.update(user);
     }
 
@@ -55,11 +66,25 @@ public class UserService {
         get(friendId);
         userStorage.addFriend(id, friendId);
         log.info("for user with id={} and user with id={} added each other to friends list", id, friendId);
+        UserEvent userEvent = new UserEvent();
+        userEvent.setTimestamp(System.currentTimeMillis());
+        userEvent.setUserId(id);
+        userEvent.setEventType("FRIEND");
+        userEvent.setOperation("ADD");
+        userEvent.setEntityId(friendId);
+        userEventDbStorage.save(userEvent);
     }
 
     public void removeFriend(long id, long friendId) {
         userStorage.removeFriend(id, friendId);
         log.info("for user with id={} and user with id={} removed each other from friends list", id, friendId);
+        UserEvent userEvent = new UserEvent();
+        userEvent.setTimestamp(System.currentTimeMillis());
+        userEvent.setUserId(id);
+        userEvent.setEventType("FRIEND");
+        userEvent.setOperation("REMOVE");
+        userEvent.setEntityId(friendId);
+        userEventDbStorage.save(userEvent);
     }
 
     public List<User> findAllFriends(long id) {

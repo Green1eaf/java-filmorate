@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserEventDbStorage;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 
 import java.util.Comparator;
 import java.util.List;
@@ -16,10 +18,12 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final UserEventDbStorage userEventDbStorage;
 
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmStorage filmStorage, UserService userService,UserEventDbStorage userEventDbStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.userEventDbStorage = userEventDbStorage;
     }
 
     public List<Film> findAll() {
@@ -50,12 +54,30 @@ public class FilmService {
 
         filmStorage.get(filmId).getLikes().add(userId);
         log.info("like for film with id={} from user with id={}", filmId, userId);
+
+        UserEvent userEvent = new UserEvent();
+        userEvent.setTimestamp(System.currentTimeMillis());
+        userEvent.setUserId(userId);
+        userEvent.setEventType("LIKE");
+        userEvent.setOperation("ADD");
+        userEvent.setEntityId(filmId);
+
+        userEventDbStorage.save(userEvent);
     }
 
     public void removeLike(long id, long userId) {
         userService.get(userId);
         get(id).getLikes().remove(userId);
         log.info("remove like from film with id={}, from user with id={}", id, userId);
+
+        UserEvent userEvent = new UserEvent();
+        userEvent.setTimestamp(System.currentTimeMillis());
+        userEvent.setUserId(userId);
+        userEvent.setEventType("LIKE");
+        userEvent.setOperation("REMOVE");
+        userEvent.setEntityId(get(id).getId());
+
+        userEventDbStorage.save(userEvent);
     }
 
     public List<Film> findCertainNumberPopularFilms(Integer count) {
