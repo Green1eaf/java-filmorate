@@ -46,6 +46,7 @@ public class UserService {
     }
 
     public User get(long id) {
+        log.info("Get film with id={}", id);
         return Optional.ofNullable(userStorage.get(id))
                 .orElseThrow(() -> new NotExistException("User with id=" + id + " not exist"));
     }
