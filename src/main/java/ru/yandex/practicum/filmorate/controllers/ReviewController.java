@@ -38,8 +38,8 @@ public class ReviewController {
     }
 
     @GetMapping
-    public List<Review> findAll(@RequestParam(required = false) Long filmId, @RequestParam(defaultValue = "10") Integer count) {
-        return reviewService.findAll(filmId, count);
+    public List<Review> findAllByFilmIdOrAll(@RequestParam(required = false) Long filmId, @RequestParam(defaultValue = "10") Integer count) {
+        return reviewService.findAllByFilmIdOrAll(filmId, count);
     }
 
     @PutMapping("/{id}/like/{userId}")
@@ -61,5 +61,4 @@ public class ReviewController {
     public void deleteDislike(@PathVariable Long id, @PathVariable Long userId) {
         reviewService.deleteDislike(id, userId);
     }
-
 }

@@ -23,7 +23,7 @@ public class ReviewService {
     }
 
     public Review create(Review review) {
-        filmService.get(review.getFilmId());
+        filmService.getById(review.getFilmId());
         userService.get(review.getUserId());
         reviewStorage.create(review);
         log.info("added review with id: {} from user id: {} for film id: {}", review.getReviewId(), review.getUserId(), review.getFilmId());
@@ -47,24 +47,28 @@ public class ReviewService {
         return reviewStorage.get(id).orElseThrow(() -> new NotExistException("review with id=" + id + " not exists"));
     }
 
-    public List<Review> findAll(Long filmId, Integer count) {
+    public List<Review> findAllByFilmIdOrAll(Long filmId, Integer count) {
         log.info("received all reviews");
         return reviewStorage.findAll(filmId, count);
     }
 
     public void addLike(Long reviewId, Long userId) {
+        log.info("Added like to review id: {} from user id: {}", reviewId, userId);
         reviewStorage.increaseUseful(reviewId);
     }
 
     public void addDislike(Long reviewId, Long userId) {
+        log.info("Added dislike to review id: {} from user id: {}", reviewId, userId);
         reviewStorage.decreaseUseful(reviewId);
     }
 
     public void deleteLike(Long reviewId, Long userId) {
+        log.info("Deleted like to review id: {} from user id: {}", reviewId, userId);
         reviewStorage.decreaseUseful(reviewId);
     }
 
     public void deleteDislike(Long reviewId, Long userId) {
+        log.info("Deleted dislike to review id: {} from user id: {}", reviewId, userId);
         reviewStorage.increaseUseful(reviewId);
     }
 }

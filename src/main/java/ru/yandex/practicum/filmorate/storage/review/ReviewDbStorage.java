@@ -43,8 +43,8 @@ public class ReviewDbStorage implements ReviewStorage {
         if (review == null) {
             throw new NotExistException("Empty argument passed!");
         }
-        String sqlQuery = "UPDATE reviews SET " +
-                "content = ?, is_positive = ? " +
+        String sqlQuery = "UPDATE reviews " +
+                "SET content = ?, is_positive = ? " +
                 "WHERE id = ?";
         jdbcTemplate.update(sqlQuery,
                 review.getContent(),
@@ -65,15 +65,14 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public List<Review> findAll(Long filmId, Integer count) {
-        if (filmId == null) {
-            return jdbcTemplate.query("SELECT * FROM reviews ORDER BY useful DESC", new ReviewMapper()).stream()
-                    .limit(count)
-                    .collect(Collectors.toList());
-        } else {
-            return jdbcTemplate.query("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC", new ReviewMapper(), filmId).stream()
-                    .limit(count)
-                    .collect(Collectors.toList());
-        }
+        return (filmId == null) ?
+                jdbcTemplate.query("SELECT * FROM reviews ORDER BY useful DESC", new ReviewMapper()).stream()
+                .limit(count)
+                .collect(Collectors.toList()) :
+
+                jdbcTemplate.query("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC", new ReviewMapper(), filmId).stream()
+                .limit(count)
+                .collect(Collectors.toList());
     }
 
     @Override
