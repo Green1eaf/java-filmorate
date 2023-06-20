@@ -66,11 +66,9 @@ public class ReviewDbStorage implements ReviewStorage {
     @Override
     public List<Review> findAll(Long filmId, Integer count) {
         return (filmId == null) ?
-                jdbcTemplate.query("SELECT * FROM reviews ORDER BY useful DESC", new ReviewMapper()).stream()
-                .limit(count)
-                .collect(Collectors.toList()) :
-
-                jdbcTemplate.query("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC", new ReviewMapper(), filmId).stream()
+                jdbcTemplate.query("SELECT * FROM reviews ORDER BY useful DESC", new ReviewMapper()) :
+                jdbcTemplate.query("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC",
+                                new ReviewMapper(), filmId).stream()
                 .limit(count)
                 .collect(Collectors.toList());
     }
