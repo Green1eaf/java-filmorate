@@ -41,4 +41,6 @@ public class Film {
     private Set<Long> likes;
 
     private List<Genre> genres;
+
+    private Director director;
 }

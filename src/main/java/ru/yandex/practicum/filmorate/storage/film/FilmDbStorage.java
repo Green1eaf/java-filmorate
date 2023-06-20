@@ -121,7 +121,8 @@ public class FilmDbStorage implements FilmStorage {
                 rs.getInt("duration"),
                 mpaRatingStorage.get(rs.getLong("mpa_rating_id")),
                 new HashSet<>(likeStorage.getAll(rs.getLong("id"))),
-                genreService.getAllByFilmId(rs.getLong("id"))
+                genreService.getAllByFilmId(rs.getLong("id")),
+                null //Временная заглушка
         ));
     }
 }
