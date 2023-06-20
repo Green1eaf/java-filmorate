@@ -33,13 +33,17 @@ public class DirectorService {
     }
 
     public Director update(Director director) {
-        if (directorStorage.get((long) director.getId()).isEmpty()) {
-            throw new NotExistException("director is not found");
+        if (directorStorage.get(director.getId()).isEmpty()) {
+            throw new NotExistException("Director is not found");
         }
         return directorStorage.update(director);
     }
 
     public void remove(long id) {
         directorStorage.delete(id);
+    }
+
+    public void removeFromFilm(long filmId, long directorId) {
+        
     }
 }

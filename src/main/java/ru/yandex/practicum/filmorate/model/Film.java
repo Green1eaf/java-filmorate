@@ -42,5 +42,5 @@ public class Film {
 
     private List<Genre> genres;
 
-    private Director director;
+    private List<Director> directors;
 }

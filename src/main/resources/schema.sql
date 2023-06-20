@@ -30,9 +30,15 @@ CREATE TABLE IF NOT EXISTS films
     release_date  DATE         NOT NULL,
     duration      INT          NOT NULL,
     mpa_rating_id LONG         NOT NULL,
-    director_id   LONG,
-    FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (id) ON DELETE CASCADE,
-    FOREIGN KEY (director_id)   REFERENCES directors (id)   ON DELETE CASCADE
+    FOREIGN KEY (mpa_rating_id) REFERENCES mpa_ratings (id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS film_director
+(
+    film_id  LONG NOT NULL,
+    director_id LONG NOT NULL,
+    FOREIGN KEY (film_id)     REFERENCES films (id)     ON DELETE CASCADE,
+    FOREIGN KEY (director_id) REFERENCES directors (id) ON DELETE CASCADE
 );
 
 CREATE TABLE IF NOT EXISTS likes
