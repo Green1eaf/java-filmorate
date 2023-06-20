@@ -55,4 +55,10 @@ public class FilmController {
     public void removeById(@PathVariable long filmId) {
         filmService.removeById(filmId);
     }
+
+    @GetMapping("/search")
+    public List<Film> search() {
+        return filmService.findPopularFilms();
+    }
+
 }

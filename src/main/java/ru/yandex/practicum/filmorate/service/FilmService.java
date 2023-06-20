@@ -78,4 +78,13 @@ public class FilmService {
         filmStorage.delete(filmId);
         log.info("remove film with id={}", filmId);
     }
+
+    public List<Film> findPopularFilms() {
+        log.info("find popular films ordered by likes");
+        return filmStorage.findAll().stream()
+                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).thenComparing(Film::getId))
+                .collect(Collectors.toList());
+    }
+
+
 }
