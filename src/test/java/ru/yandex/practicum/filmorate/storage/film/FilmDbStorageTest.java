@@ -35,7 +35,6 @@ class FilmDbStorageTest {
                 .duration(100)
                 .mpa(new Mpa(1L, "G"))
                 .genres(Collections.emptyList())
-                .likes(Collections.emptySet())
                 .build();
         filmStorage.create(film);
         film.setId(1L);

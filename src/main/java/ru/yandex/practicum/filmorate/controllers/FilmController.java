@@ -17,17 +17,17 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> findAllFilms() {
+    public List<Film> findAll() {
         return filmService.findAll();
     }
 
     @PostMapping
-    public Film addFilm(@Valid @RequestBody Film film) {
+    public Film create(@Valid @RequestBody Film film) {
         return filmService.create(film);
     }
 
     @PutMapping
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         return filmService.update(film);
     }
 
@@ -47,7 +47,12 @@ public class FilmController {
     }
 
     @GetMapping("/{id}")
-    public Film get(@PathVariable long id) {
-        return filmService.get(id);
+    public Film getById(@PathVariable long id) {
+        return filmService.getById(id);
+    }
+
+    @GetMapping("/common")
+    public List<Film> getCommonFilms(@RequestParam(name = "userId") long userId, @RequestParam(name = "friendId") long friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }
