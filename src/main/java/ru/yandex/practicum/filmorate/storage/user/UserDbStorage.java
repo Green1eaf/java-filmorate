@@ -87,10 +87,4 @@ public class UserDbStorage implements UserStorage {
                         "WHERE f.user_id=?",
                 new UserMapper(), id);
     }
-
-    @Override
-    public List<Film> getGeneralLikes(long id, long friendId){
-        "Select l. from likes l WHERE l.user_id=?"+
-
-    }
 }

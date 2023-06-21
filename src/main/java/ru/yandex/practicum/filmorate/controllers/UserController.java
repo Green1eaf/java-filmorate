@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -55,8 +56,15 @@ public class UserController {
     public List<User> findCommonFriends(@PathVariable long id, @PathVariable long otherId) {
         return userService.findCommonFriends(id, otherId);
     }
+
     @GetMapping("/{id}/recommendations")
-    public List<Film> getGeneralLikes(@PathVariable long id, @PathVariable long friendId){
-        return userService.getGeneralLikes (id, friendId);
+    public List<Film> getRecommendationFilms(@PathVariable long id) {
+        List<Film> recommendationFilms = userService.getRecommendationFilms(id);
+//        if (recommendationFilms.isEmpty()){
+//            return ResponseEntity.ok("");
+//        } else {
+//            return ResponseEntity.ok(recommendationFilms);
+//        }
+        return recommendationFilms;
     }
 }

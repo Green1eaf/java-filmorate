@@ -22,6 +22,4 @@ public interface UserStorage {
     void removeFriend(long userId, long friendId);
 
     List<User> findAllFriends(long id);
-
-    List<Film> getGeneralLikes(long id, long friendId);
 }
