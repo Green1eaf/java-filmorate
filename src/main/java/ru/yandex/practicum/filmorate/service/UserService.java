@@ -46,6 +46,7 @@ public class UserService {
     }
 
     public User get(long id) {
+        log.info("Get film with id={}", id);
         return Optional.ofNullable(userStorage.get(id))
                 .orElseThrow(() -> new NotExistException("User with id=" + id + " not exist"));
     }
@@ -63,6 +64,7 @@ public class UserService {
     }
 
     public List<User> findAllFriends(long id) {
+        get(id);
         log.info("get all friends for user with id={}", id);
         return userStorage.findAllFriends(id);
     }
@@ -78,5 +80,10 @@ public class UserService {
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
                 .collect(Collectors.toList());
+    }
+
+    public void removeById(long userId) {
+        userStorage.delete(userId);
+        log.info("remove user with id={}", userId);
     }
 }
