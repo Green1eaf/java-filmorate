@@ -16,10 +16,10 @@ public class DirectorService {
         this.directorStorage = directorStorage;
     }
 
-    public Optional<Director> getDirector(long id) {
+    public Director getDirector(long id) {
         Optional<Director> foundDirector = directorStorage.get(id);
         if (foundDirector.isPresent()) {
-            return foundDirector;
+            return foundDirector.get();
         } else {
             throw new NotExistException("Director is not found");
         }
@@ -41,9 +41,7 @@ public class DirectorService {
     }
 
     public void remove(long id) {
-        if (getDirector(id).isEmpty()) {
-            throw new NotExistException("Director is not found");
-        }
+        getDirector(id);
         directorStorage.delete(id);
     }
 
