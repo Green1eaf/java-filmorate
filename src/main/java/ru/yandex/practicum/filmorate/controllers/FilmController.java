@@ -50,4 +50,9 @@ public class FilmController {
     public Film get(@PathVariable long id) {
         return filmService.get(id);
     }
+
+    @GetMapping("/director/{id}")
+    public List<Film> getFilmsByDirector(@PathVariable long id, @RequestParam(defaultValue = "id") String sortBy) {
+        return filmService.getFilmsByDirector(id, sortBy);
+    }
 }

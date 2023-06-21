@@ -38,4 +38,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     public List<Film> findAll() {
         return new ArrayList<>(storage.values());
     }
+
+    @Override
+    public List<Film> getFilmsByDirector(long id, String sortBy) {
+        return null;
+    }
 }

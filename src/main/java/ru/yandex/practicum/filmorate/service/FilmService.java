@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -16,10 +18,12 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final DirectorService directorService;
 
-    public FilmService(FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.directorService = directorService;
     }
 
     public List<Film> findAll() {
@@ -72,5 +76,14 @@ public class FilmService {
 
     public Film update(Film film) {
         return filmStorage.update(film);
+    }
+
+    public List<Film> getFilmsByDirector(long id, String sortBy) {
+        directorService.getDirector(id);
+        if (sortBy.equals("likes") || sortBy.equals("year")) {
+            return filmStorage.getFilmsByDirector(id, sortBy + "s");
+        } else {
+            throw new BadRequestException("Неверный текст запроса");
+        }
     }
 }

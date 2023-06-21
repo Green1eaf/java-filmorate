@@ -40,10 +40,25 @@ public class DirectorService {
     }
 
     public void remove(long id) {
+        if (getDirector(id).isEmpty()) {
+            throw new NotExistException("Director is not found");
+        }
         directorStorage.delete(id);
     }
 
-    public void removeFromFilm(long filmId, long directorId) {
-        
+    public void removeAllFromFilm(long filmId) {
+        directorStorage.delete(filmId);
+    }
+
+    public void updateAllToFilm(long filmId, List<Director> directors) {
+        directorStorage.updateAllToFilm(filmId, directors);
+    }
+
+    public void addAllToFilm(long filmId, List<Director> directors) {
+        directorStorage.addAllToFilm(filmId, directors);
+    }
+
+    public List<Director> getAllByFilmId(long filmId) {
+        return directorStorage.getAllByFilmId(filmId);
     }
 }
