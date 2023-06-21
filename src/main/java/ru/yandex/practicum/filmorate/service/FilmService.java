@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
@@ -24,7 +23,8 @@ public class FilmService {
     private final DirectorService directorService;
     private final LikeStorage likeStorage;
 
-    public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService,  LikeStorage likeStorage) {
+    public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService,
+            LikeStorage likeStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.directorService = directorService;
@@ -38,7 +38,8 @@ public class FilmService {
 
     public Film create(Film film) {
         if (film.getId() != null) {
-            throw new AlreadyExistException("Film " + film.getName() + " with id=" + film.getId() + " is already exist");
+            throw new AlreadyExistException(
+                    "Film " + film.getName() + " with id=" + film.getId() + " is already exist");
         }
         filmStorage.create(film);
         log.info("added film with id: {} and name: {}", film.getId(), film.getName());
@@ -92,10 +93,14 @@ public class FilmService {
 
     public List<Film> getFilmsByDirector(long id, String sortBy) {
         directorService.getDirector(id);
-        if (sortBy.equals("likes") || sortBy.equals("year")) {
+        if (sortBy.equals("year")) {
             return filmStorage.getFilmsByDirector(id, sortBy + "s");
         } else {
-            throw new BadRequestException("Неверный текст запроса");
+            if (sortBy.equals("likes")) {
+                return filmStorage.getFilmsByDirector(id, sortBy);
+            } else {
+                throw new BadRequestException("Неверный текст запроса: " + sortBy);
+            }
         }
     }
 }

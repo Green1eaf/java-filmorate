@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,10 +11,8 @@ import java.util.Optional;
 @Service
 public class DirectorService {
     private final DirectorStorage directorStorage;
-    private final FilmService filmService;
-    public DirectorService(DirectorStorage directorStorage, FilmService filmService) {
+    public DirectorService(DirectorStorage directorStorage) {
         this.directorStorage = directorStorage;
-        this.filmService = filmService;
     }
 
     public Optional<Director> getDirector(long id) {
@@ -54,17 +51,14 @@ public class DirectorService {
     }
 
     public void updateAllToFilm(long filmId, List<Director> directors) {
-        filmService.get(filmId);
         directorStorage.updateAllToFilm(filmId, directors);
     }
 
     public void addAllToFilm(long filmId, List<Director> directors) {
-        filmService.get(filmId);
         directorStorage.addAllToFilm(filmId, directors);
     }
 
     public List<Director> getAllByFilmId(long filmId) {
-        filmService.get(filmId);
         return directorStorage.getAllByFilmId(filmId);
     }
 }
