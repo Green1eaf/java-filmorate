@@ -6,6 +6,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -85,5 +86,11 @@ public class UserDbStorage implements UserStorage {
                         "JOIN friendly_relations f ON f.friend_id=u.id " +
                         "WHERE f.user_id=?",
                 new UserMapper(), id);
+    }
+
+    @Override
+    public List<Film> getGeneralLikes(long id, long friendId){
+        "Select l. from likes l WHERE l.user_id=?"+
+
     }
 }

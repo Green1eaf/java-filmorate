@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
@@ -21,4 +22,6 @@ public interface UserStorage {
     void removeFriend(long userId, long friendId);
 
     List<User> findAllFriends(long id);
+
+    List<Film> getGeneralLikes(long id, long friendId);
 }
