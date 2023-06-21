@@ -21,4 +21,14 @@ public class LikeDbStorage implements LikeStorage {
         return jdbcTemplate.query("SELECT user_id FROM likes WHERE film_id=?",
                 new Object[]{filmId}, new BeanPropertyRowMapper<>());
     }
+
+    @Override
+    public void add(long userId, long filmId) {
+        jdbcTemplate.update("INSERT INTO likes VALUES (?,?)", userId, filmId);
+    }
+
+    @Override
+    public void remove(long userId, long filmId) {
+        jdbcTemplate.update("DELETE FROM likes WHERE user_id=? AND film_id=?", userId, filmId);
+    }
 }

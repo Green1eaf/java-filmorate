@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.storage.user;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -15,7 +14,6 @@ import java.util.List;
 import java.util.Objects;
 
 @Repository
-@Primary
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
@@ -85,5 +83,11 @@ public class UserDbStorage implements UserStorage {
                         "JOIN friendly_relations f ON f.friend_id=u.id " +
                         "WHERE f.user_id=?",
                 new UserMapper(), id);
+    }
+
+    public boolean existsById(long id) {
+        String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
+        return count != null && count > 0;
     }
 }
