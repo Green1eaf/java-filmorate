@@ -1,16 +1,16 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -19,8 +19,11 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    public UserService(UserStorage userStorage) {
+    private final FilmService filmService;
+
+    public UserService(UserStorage userStorage, @Lazy FilmService filmService) {
         this.userStorage = userStorage;
+        this.filmService = filmService;
     }
 
     public List<User> findAll() {
@@ -85,5 +88,36 @@ public class UserService {
     public void removeById(long userId) {
         userStorage.delete(userId);
         log.info("remove user with id={}", userId);
+    }
+
+    public List<Film> getRecommendationFilms(@PathVariable long id) {
+        User user = get(id);
+        List<Film> films = filmService.findAll();
+        List<Film> recommendationFilms = new ArrayList<>();
+        if (films.isEmpty()) {
+            return recommendationFilms;
+        }
+
+        List<Film> likesUser = films.stream().filter(film -> film.getLikes().contains(user.getId())).collect(Collectors.toList());
+        if (likesUser.isEmpty()) {
+            return recommendationFilms;
+        }
+        Map<User, Integer> countLikesUser = new HashMap<>();
+        likesUser.forEach(film -> film.getLikes().forEach(idUser -> {
+            User user1 = get(idUser);
+            if (countLikesUser.containsKey(user1)) {
+                countLikesUser.put(user1, countLikesUser.get(user1) + 1);
+            } else {
+                countLikesUser.put(user1, 1);
+            }
+        }));
+        User userMaxLike = Collections.max(countLikesUser.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+
+        likesUser.forEach(film -> {
+            if (!film.getLikes().contains(userMaxLike.getId())) {
+                recommendationFilms.add(film);
+            }
+        });
+        return recommendationFilms;
     }
 }

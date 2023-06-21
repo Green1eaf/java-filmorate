@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -58,5 +59,16 @@ public class UserController {
     @DeleteMapping("/{userId}")
     public void removeById(@PathVariable long userId) {
         userService.removeById(userId);
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public List<Film> getRecommendationFilms(@PathVariable long id) {
+        List<Film> recommendationFilms = userService.getRecommendationFilms(id);
+//        if (recommendationFilms.isEmpty()){
+//            return ResponseEntity.ok("");
+//        } else {
+//            return ResponseEntity.ok(recommendationFilms);
+//        }
+        return recommendationFilms;
     }
 }
