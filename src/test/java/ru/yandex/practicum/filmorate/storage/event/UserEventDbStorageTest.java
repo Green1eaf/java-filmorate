@@ -41,7 +41,7 @@ public class UserEventDbStorageTest {
         userStorage.create(user);
         user.setId(USER_ID);
         film = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
-                new Mpa(1L, "G"), 0, Collections.emptyList());
+                new Mpa(1L, "G"), 0, Collections.emptyList(), Collections.emptyList());
         filmStorage.create(film);
     }
 
