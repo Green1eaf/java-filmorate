@@ -6,9 +6,11 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 
 import java.util.Comparator;
 import java.util.List;
@@ -21,18 +23,24 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private final DirectorService directorService;
     private final LikeStorage likeStorage;
+    private final UserEventStorage userEventStorage;
     private final GenreStorage genreStorage;
     private final DirectorService directorService;
 
+    public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService,
+            LikeStorage likeStorage, UserEventStorage userEventStorage) {
     private static final Integer DEFAULT_SEARCH_LIMIT_VALUE = 10;
 
     public FilmService(FilmStorage filmStorage, UserService userService, LikeStorage likeStorage, GenreStorage genreStorage, DirectorService directorService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.directorService = directorService;
         this.likeStorage = likeStorage;
         this.genreStorage = genreStorage;
         this.directorService = directorService;
+        this.userEventStorage = userEventStorage;
     }
 
     public List<Film> findAll() {
@@ -55,6 +63,13 @@ public class FilmService {
         getById(filmId);
         likeStorage.add(userId, filmId);
         log.info("like for film with id={} from user with id={}", filmId, userId);
+        UserEvent userEvent = UserEvent.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("ADD")
+                .entityId(filmId)
+                .build();
+        userEventStorage.save(userEvent);
     }
 
     public void removeLike(long id, long userId) {
@@ -62,6 +77,13 @@ public class FilmService {
         getById(id);
         likeStorage.remove(userId, id);
         log.info("remove like from film with id={}, from user with id={}", id, userId);
+        UserEvent userEvent = UserEvent.builder()
+                .userId(userId)
+                .eventType("LIKE")
+                .operation("REMOVE")
+                .entityId(getById(id).getId())
+                .build();
+        userEventStorage.save(userEvent);
     }
 
     public List<Film> findFilteredPopularFilms(Integer count, Long genreId, Integer year) {
@@ -99,15 +121,13 @@ public class FilmService {
 
     public List<Film> getFilmsByDirector(long id, String sortBy) {
         directorService.getById(id);
-        if (sortBy.equals("year")) {
-            return filmStorage.getFilmsByDirector(id, sortBy + "s");
-        } else {
-            if (sortBy.equals("likes")) {
+        switch (sortBy) {
+            case "year":
+                return filmStorage.getFilmsByDirector(id, sortBy + "s");
+            case "likes":
                 return filmStorage.getFilmsByDirector(id, sortBy);
-            } else {
-                throw new BadRequestException("Неверный текст запроса: " + sortBy);
-            }
+            default:
+                throw new BadRequestException("Некорректный параметр сортировки: " + sortBy);
         }
     }
 }
-
