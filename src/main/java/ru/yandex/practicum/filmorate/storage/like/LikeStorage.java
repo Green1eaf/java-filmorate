@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface LikeStorage {
 
-    List<Integer> getAll(Integer filmId);
+    List<Long> getAll(long filmId);
 
     void add(long userId, long filmId);
 

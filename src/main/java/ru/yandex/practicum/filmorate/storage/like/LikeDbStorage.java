@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -11,15 +12,16 @@ public class LikeDbStorage implements LikeStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
+    @Autowired
     public LikeDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
 
     @Override
-    public List<Integer> getAll(Integer filmId) {
-        return jdbcTemplate.query("SELECT user_id FROM likes WHERE film_id=?",
-                new Object[]{filmId}, new BeanPropertyRowMapper<>(Integer.class));
+    public List<Long> getAll(long id) {
+        String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";
+        return jdbcTemplate.queryForList(sqlQuery, Long.class, id);
     }
 
     @Override
