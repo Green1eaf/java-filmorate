@@ -7,8 +7,8 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.GenreService;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -23,12 +23,12 @@ public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
     private final GenreService genreService;
-    private final DirectorService directorService;
+    private final DirectorStorage directorStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorService directorService) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, GenreService genreService, DirectorStorage directorStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.genreService = genreService;
-        this.directorService = directorService;
+        this.directorStorage = directorStorage;
     }
 
     @Override
@@ -51,7 +51,7 @@ public class FilmDbStorage implements FilmStorage {
 
         film.setId((Objects.requireNonNull(keyHolder.getKey()).longValue()));
         genreService.addAll(film.getId(), film.getGenres());
-        directorService.addAllToFilm(film.getId(), film.getDirectors());
+
         return film;
     }
 
@@ -77,7 +77,7 @@ public class FilmDbStorage implements FilmStorage {
                     .collect(Collectors.toList());
             film.setGenres(genres);
             genreService.update(film.getId(), genres);
-            directorService.updateAllToFilm(film.getId(), film.getDirectors());
+            directorStorage.updateAllToFilm(film.getId(), film.getDirectors());
             return film;
         } else {
             throw new NotExistException("Фильм с ID=" + film.getId() + " не найден!");
@@ -134,6 +134,7 @@ public class FilmDbStorage implements FilmStorage {
                 new FilmMapper());
     }
 
+
     @Override
     public List<Film> getCommonFilms(long userId, long friendId) {
         return jdbcTemplate.query(
@@ -181,3 +182,4 @@ public class FilmDbStorage implements FilmStorage {
                 new Object[]{id}, new FilmMapper());
     }
 }
+
