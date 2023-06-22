@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -41,7 +40,8 @@ public class ReviewService {
         return review;
     }
 
-    public Optional<Review> update(Review review) {
+    public Review update(Review review) {
+        get(review.getReviewId());
         Review existingReview = get(review.getReviewId());
         long previousUserId = existingReview.getUserId();
         long previousEntityId = existingReview.getFilmId();
@@ -53,7 +53,7 @@ public class ReviewService {
                 .entityId(previousEntityId)
                 .build();
         userEventStorage.save(userEvent);
-        return reviewStorage.update(review);
+        return reviewStorage.update(review).orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
     }
 
     public void delete(Long id) {
