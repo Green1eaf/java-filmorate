@@ -184,35 +184,63 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public List<Film> searchFilms(String query, String directorAndTitle) {
-        String[] splitedRequest = directorAndTitle.split(",");
-        switch (splitedRequest.length) {
+        String[] requestString = directorAndTitle.split(",");
+        switch (requestString.length) {
             case (1):
-                if (splitedRequest[0].equals("title")) {
+                if (requestString[0].equals("title")) {
                     return getFilmsByPartOfTitle(query);
                 }
                 return getFilmsByPartOfDirectorName(query);
             case (2):
                 List<Film> filmsWithSearchedNames = getFilmsByPartOfTitle(query);
                 List<Film> filmsWithSearchedDirectors = getFilmsByPartOfDirectorName(query);
-                filmsWithSearchedNames.addAll(filmsWithSearchedDirectors);
-                return filmsWithSearchedNames;
+                filmsWithSearchedDirectors.addAll(filmsWithSearchedNames);
+                return filmsWithSearchedDirectors;
         }
         return new ArrayList<>();
     }
 
 
     public List<Film> getFilmsByPartOfTitle(String filmNamePart) {
-        String sqlString = "SELECT * FROM FILMS WHERE LCASE(FILM_NAME) " +
-                "LIKE '%" + filmNamePart.toLowerCase() + "%'";
+        String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
+                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                + "GROUP_CONCAT(g.name) AS genresnames, "
+                + "GROUP_CONCAT(d.id) AS directorsid, "
+                + "GROUP_CONCAT(d.NAME) AS directorsname "
+                + "FROM films AS f "
+                + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
+                + "LEFT OUTER JOIN likes l2 ON f.id = l2.film_id "
+                + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                + "WHERE LCASE(f.NAME) LIKE '%" + filmNamePart.toLowerCase() + "%' "
+                + "GROUP BY f.id ";
         return jdbcTemplate.query(sqlString, new FilmMapper());
 
     }
 
     public List<Film> getFilmsByPartOfDirectorName(String directorNamePart) {
-        String sqlString = "SELECT * FROM FILMS WHERE FILM_ID IN " +
-                "(SELECT FILM_ID FROM FILM_DIRECTORS " +
-                "WHERE DIRECTOR_ID IN (SELECT DIRECTORS.DIRECTOR_ID FROM DIRECTORS " +
-                "WHERE LCASE(DIRECTOR_NAME) like '%" + directorNamePart.toLowerCase() + "%'))";
+        String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
+                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                + "GROUP_CONCAT(g.name) AS genresnames, "
+                + "GROUP_CONCAT(d.id) AS directorsid, "
+                + "GROUP_CONCAT(d.NAME) AS directorsname "
+                + "FROM films AS f "
+                + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
+                + "LEFT OUTER JOIN likes l2 ON f.id = l2.film_id "
+                + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                + "WHERE LCASE(d.NAME) LIKE '%" + directorNamePart.toLowerCase() + "%' "
+                + "GROUP BY f.id ";
         return jdbcTemplate.query(sqlString, new FilmMapper());
     }
 

@@ -95,6 +95,19 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public List<Film> searchFilms(String query, String directorAndTitle) {
+        List<Film> result;
+        if (query == null && directorAndTitle == null) {
+            result = findFilteredPopularFilms(null, null, null);
+        } else {
+
+            result = filmStorage.searchFilms(query, directorAndTitle).stream()
+                    .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
+
     public Film getById(long id) {
         log.info("Get film with id=" + id);
         return Optional.ofNullable(filmStorage.get(id))
@@ -116,25 +129,6 @@ public class FilmService {
         userService.get(friendId);
         log.info("get common films for users with id={} and id={}", userId, friendId);
         return filmStorage.getCommonFilms(userId, friendId);
-    }
-
-    public List<Film> findPopularFilms() {
-        log.info("find popular films ordered by likes");
-        return filmStorage.findAll().stream()
-                .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId))
-                .collect(Collectors.toList());
-    }
-
-    public List<Film> searchFilms(String query, String directorAndTitle) {
-        List<Film> result;
-        if (query == null && directorAndTitle == null ) {
-            result = findPopularFilms();
-        } else {
-            result = filmStorage.searchFilms(query, directorAndTitle).stream()
-                    .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId))
-                    .collect(Collectors.toList());
-        }
-        return result;
     }
 
     public List<Film> getFilmsByDirector(long id, String sortBy) {
