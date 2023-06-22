@@ -52,12 +52,18 @@ public class FilmController {
     }
 
     @GetMapping("/common")
-    public List<Film> getCommonFilms(@RequestParam(name = "userId") long userId, @RequestParam(name = "friendId") long friendId) {
+    public List<Film> getCommonFilms(@RequestParam(name = "userId") long userId,
+            @RequestParam(name = "friendId") long friendId) {
         return filmService.getCommonFilms(userId, friendId);
     }
 
     @DeleteMapping("/{filmId}")
     public void removeById(@PathVariable long filmId) {
         filmService.removeById(filmId);
+    }
+
+    @GetMapping("/director/{id}")
+    public List<Film> getFilmsByDirector(@PathVariable long id, @RequestParam(defaultValue = "id") String sortBy) {
+        return filmService.getFilmsByDirector(id, sortBy);
     }
 }
