@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
@@ -30,10 +29,10 @@ public class ReviewService {
         return review;
     }
 
-    public Optional<Review> update(Review review) {
+    public Review update(Review review) {
         get(review.getReviewId());
         log.info("updated review with id: {} from user id: {} for film id: {}", review.getReviewId(), review.getUserId(), review.getFilmId());
-        return reviewStorage.update(review);
+        return reviewStorage.update(review).orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
     }
 
     public void delete(Long id) {
