@@ -8,9 +8,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -29,9 +31,12 @@ class FilmDbStorageTest {
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
     private final LikeStorage likeStorage;
+    private final DirectorStorage directorStorage;
     private static final Film FILM;
     private static final User USER;
     private static final User FRIEND;
+
+    private static final Director DIRECTOR;
 
     static {
         USER = new User(null, "email@ya.com", "login", "name",
@@ -39,7 +44,8 @@ class FilmDbStorageTest {
         FRIEND = new User(null, "friend@ya.com", "friend", "friend",
                 LocalDate.of(1986, 3, 14), null);
         FILM = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
-                new Mpa(1L, "G"), 0, Collections.emptyList(), null);
+                new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
+        DIRECTOR = new Director(1L, "Director");
     }
 
     @BeforeEach
@@ -101,6 +107,13 @@ class FilmDbStorageTest {
         likeStorage.remove(USER.getId(), FILM.getId());
         Assertions.assertArrayEquals(filmStorage.getCommonFilms(USER.getId(), FRIEND.getId()).toArray(),
                 Collections.emptyList().toArray());
+    }
+
+    @Test
+    void getFilmsByDirector() {
+        directorStorage.create(DIRECTOR);
+        directorStorage.addAllToFilm(1L, List.of(DIRECTOR));
+        Assertions.assertEquals(1, filmStorage.getFilmsByDirector(1L, "likes").toArray().length);
     }
 
     private void createUserAndFriend() {
