@@ -6,7 +6,9 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final UserEventStorage userEventStorage;
 
-    public UserService(UserStorage userStorage) {
+    public UserService(UserStorage userStorage,UserEventStorage userEventStorage) {
         this.userStorage = userStorage;
+        this.userEventStorage = userEventStorage;
     }
 
     public List<User> findAll() {
@@ -56,11 +60,25 @@ public class UserService {
         get(friendId);
         userStorage.addFriend(id, friendId);
         log.info("for user with id={} and user with id={} added each other to friends list", id, friendId);
+        UserEvent userEvent = UserEvent.builder()
+                .userId(id)
+                .eventType("FRIEND")
+                .operation("ADD")
+                .entityId(friendId)
+                .build();
+        userEventStorage.save(userEvent);
     }
 
     public void removeFriend(long id, long friendId) {
         userStorage.removeFriend(id, friendId);
         log.info("for user with id={} and user with id={} removed each other from friends list", id, friendId);
+        UserEvent userEvent = UserEvent.builder()
+                .userId(id)
+                .eventType("FRIEND")
+                .operation("REMOVE")
+                .entityId(friendId)
+                .build();
+        userEventStorage.save(userEvent);
     }
 
     public List<User> findAllFriends(long id) {

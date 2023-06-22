@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage.director;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import java.sql.ResultSet;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Component
 @Repository
 public class DirectorDbStorage implements DirectorStorage {
     private final JdbcTemplate jdbcTemplate;
@@ -61,8 +59,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void delete(long id) {
-        String sqlQuery = "delete from directors where id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update("delete from directors where id = ?", id);
     }
 
     @Override
