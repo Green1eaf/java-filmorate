@@ -35,48 +35,49 @@ public class FilmService {
         return film;
     }
 
-    public Film updateFilm(Film film) {
-        get(film.getId());
-        return filmStorage.update(film);
-    }
-
     public void like(long filmId, long userId) {
         userService.get(userId);
-        var film = get(filmId);
-
-        if (film.getLikes().contains(userId)) {
-            throw new AlreadyExistException("Like from user with id=" + userId + " is already exist");
-        }
-
-        filmStorage.get(filmId).getLikes().add(userId);
+        getById(filmId);
+        likeStorage.add(userId, filmId);
         log.info("like for film with id={} from user with id={}", filmId, userId);
     }
 
     public void removeLike(long id, long userId) {
         userService.get(userId);
-        get(id).getLikes().remove(userId);
+        getById(id);
+        likeStorage.remove(userId, id);
         log.info("remove like from film with id={}, from user with id={}", id, userId);
     }
 
     public List<Film> findCertainNumberPopularFilms(Integer count) {
         log.info("find " + count + " most popular films");
         return filmStorage.findAll().stream()
-                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).thenComparing(Film::getId).reversed())
+                .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
                 .limit(count)
                 .collect(Collectors.toList());
     }
 
-    public Film get(long id) {
-        return filmStorage.get(id);
+    public Film getById(long id) {
+        log.info("Get film with id=" + id);
+        return Optional.ofNullable(filmStorage.get(id))
+                .orElseThrow(() -> new NotExistException("Film with id=" + id + " not exists"));
     }
 
     public Film update(Film film) {
+        log.info("Film with id=" + film.getId() + " and name=" + film.getName() + " updated");
         return filmStorage.update(film);
     }
 
     public void removeById(long filmId) {
         filmStorage.delete(filmId);
         log.info("remove film with id={}", filmId);
+    }
+
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        userService.get(userId);
+        userService.get(friendId);
+        log.info("get common films for users with id={} and id={}", userId, friendId);
+        return filmStorage.getCommonFilms(userId, friendId);
     }
 
     public List<Film> findPopularFilms() {
