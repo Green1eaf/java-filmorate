@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 
@@ -29,6 +30,13 @@ public class CustomExceptionHandler {
     public ResponseError notExistHandle(NotExistException exception) {
         log.error(exception.getMessage());
         return new ResponseError(exception.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseError badRequestHandle(BadRequestException exception) {
+        log.error(exception.getMessage());
+        return new ResponseError(exception.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
