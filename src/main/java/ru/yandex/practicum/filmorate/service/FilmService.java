@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import java.util.Comparator;
@@ -21,9 +20,9 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikeStorage likeStorage;
-    private final GenreStorage genreStorage;
-    private static final Integer DEFAULT_SEARCH_LIMIT_VALUE = 10;
 
+    public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService,
+            LikeStorage likeStorage) {
     public FilmService(FilmStorage filmStorage, UserService userService, LikeStorage likeStorage, GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
@@ -38,7 +37,8 @@ public class FilmService {
 
     public Film create(Film film) {
         if (film.getId() != null) {
-            throw new AlreadyExistException("Film " + film.getName() + " with id=" + film.getId() + " is already exist");
+            throw new AlreadyExistException(
+                    "Film " + film.getName() + " with id=" + film.getId() + " is already exist");
         }
         filmStorage.create(film);
         log.info("added film with id: {} and name: {}", film.getId(), film.getName());
@@ -90,5 +90,18 @@ public class FilmService {
         userService.get(friendId);
         log.info("get common films for users with id={} and id={}", userId, friendId);
         return filmStorage.getCommonFilms(userId, friendId);
+    }
+
+    public List<Film> getFilmsByDirector(long id, String sortBy) {
+        directorService.getDirector(id);
+        if (sortBy.equals("year")) {
+            return filmStorage.getFilmsByDirector(id, sortBy + "s");
+        } else {
+            if (sortBy.equals("likes")) {
+                return filmStorage.getFilmsByDirector(id, sortBy);
+            } else {
+                throw new BadRequestException("Неверный текст запроса: " + sortBy);
+            }
+        }
     }
 }

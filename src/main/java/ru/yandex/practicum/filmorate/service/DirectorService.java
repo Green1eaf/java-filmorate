@@ -11,14 +11,15 @@ import java.util.Optional;
 @Service
 public class DirectorService {
     private final DirectorStorage directorStorage;
+
     public DirectorService(DirectorStorage directorStorage) {
         this.directorStorage = directorStorage;
     }
 
-    public Optional<Director> getDirector(long id) {
+    public Director getDirector(long id) {
         Optional<Director> foundDirector = directorStorage.get(id);
         if (foundDirector.isPresent()) {
-            return foundDirector;
+            return foundDirector.get();
         } else {
             throw new NotExistException("Director is not found");
         }
@@ -40,10 +41,23 @@ public class DirectorService {
     }
 
     public void remove(long id) {
+        getDirector(id);
         directorStorage.delete(id);
     }
 
-    public void removeFromFilm(long filmId, long directorId) {
-        
+    public void removeAllFromFilm(long filmId) {
+        directorStorage.delete(filmId);
+    }
+
+    public void updateAllToFilm(long filmId, List<Director> directors) {
+        directorStorage.updateAllToFilm(filmId, directors);
+    }
+
+    public void addAllToFilm(long filmId, List<Director> directors) {
+        directorStorage.addAllToFilm(filmId, directors);
+    }
+
+    public List<Director> getAllByFilmId(long filmId) {
+        return directorStorage.getAllByFilmId(filmId);
     }
 }

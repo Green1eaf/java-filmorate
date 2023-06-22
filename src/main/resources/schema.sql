@@ -8,6 +8,7 @@ CREATE TABLE IF NOT EXISTS users
     name      VARCHAR(50),
     birthdate DATE
 );
+
 CREATE INDEX IF NOT EXISTS idx_users_id ON users (id);
 
 CREATE TABLE IF NOT EXISTS mpa_ratings

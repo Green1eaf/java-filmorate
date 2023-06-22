@@ -39,7 +39,7 @@ class FilmDbStorageTest {
         FRIEND = new User(null, "friend@ya.com", "friend", "friend",
                 LocalDate.of(1986, 3, 14), null);
         FILM = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
-                new Mpa(1L, "G"), 0, Collections.emptyList(), Collections.emptyList());
+                new Mpa(1L, "G"), 0, Collections.emptyList(), null);
     }
 
     @BeforeEach

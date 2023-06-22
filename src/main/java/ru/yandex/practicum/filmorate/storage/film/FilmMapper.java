@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.RowMapper;
-import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -19,6 +18,10 @@ public class FilmMapper implements RowMapper<Film> {
         String genresIdString = rs.getString("genresid");
         String genresNamesString = rs.getString("genresnames");
 
+        List<Director> directors = new ArrayList<>();
+        String directorsIdString = rs.getString("directorsid");
+        String directorsNamesString = rs.getString("directorsname");
+
         if (genresIdString != null && genresNamesString != null
                 && !genresIdString.isEmpty() && !genresNamesString.isEmpty()) {
             String[] genresId = genresIdString.split(",");
@@ -30,9 +33,17 @@ public class FilmMapper implements RowMapper<Film> {
                             .name(genresNames[i])
                             .build()));
         }
+        if (directorsIdString != null && directorsNamesString != null
+                && !directorsIdString.isEmpty() && !directorsNamesString.isEmpty()) {
+            String[] directorsId = directorsIdString.split(",");
+            String[] directorsNames = directorsNamesString.split(",");
 
-        List<Director> directors = new ArrayList<>();
-
+            IntStream.range(0, directorsId.length)
+                    .forEach(i -> directors.add(Director.builder()
+                            .id(Long.parseLong(directorsId[i]))
+                            .name(directorsNames[i])
+                            .build()));
+        }
         return Film.builder()
                 .id(rs.getLong("id"))
                 .name(rs.getString("name"))
@@ -42,7 +53,6 @@ public class FilmMapper implements RowMapper<Film> {
                 .mpa(new Mpa(rs.getLong("mpa_rating_id"), rs.getString("mpa_name")))
                 .rate(rs.getInt("likes"))
                 .genres(genres)
-                .directors(directors)
                 .build();
     }
 }
