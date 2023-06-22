@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import org.springframework.jdbc.core.RowMapper;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -53,6 +54,7 @@ public class FilmMapper implements RowMapper<Film> {
                 .mpa(new Mpa(rs.getLong("mpa_rating_id"), rs.getString("mpa_name")))
                 .rate(rs.getInt("likes"))
                 .genres(genres)
+                .directors(directors)
                 .build();
     }
 }
