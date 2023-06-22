@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
@@ -14,11 +16,13 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmService filmService;
     private final UserService userService;
+    private final UserEventStorage userEventStorage;
 
-    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService) {
+    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService, UserEventStorage userEventDbStorage) {
         this.reviewStorage = reviewStorage;
         this.filmService = filmService;
         this.userService = userService;
+        this.userEventStorage = userEventDbStorage;
     }
 
     public Review create(Review review) {
@@ -26,18 +30,42 @@ public class ReviewService {
         userService.get(review.getUserId());
         reviewStorage.create(review);
         log.info("added review with id: {} from user id: {} for film id: {}", review.getReviewId(), review.getUserId(), review.getFilmId());
+        UserEvent userEvent = UserEvent.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("ADD")
+                .entityId(review.getReviewId())
+                .build();
+        userEventStorage.save(userEvent);
         return review;
     }
 
     public Review update(Review review) {
         get(review.getReviewId());
+        Review existingReview = get(review.getReviewId());
+        long previousUserId = existingReview.getUserId();
+        long previousEntityId = existingReview.getFilmId();
         log.info("updated review with id: {} from user id: {} for film id: {}", review.getReviewId(), review.getUserId(), review.getFilmId());
+        UserEvent userEvent = UserEvent.builder()
+                .userId(previousUserId)
+                .eventType("REVIEW")
+                .operation("UPDATE")
+                .entityId(previousEntityId)
+                .build();
+        userEventStorage.save(userEvent);
         return reviewStorage.update(review).orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
     }
 
     public void delete(Long id) {
         Review review = get(id);
         log.info("deleted review with id: {} from user id: {} for film id: {}", id, review.getUserId(), review.getFilmId());
+        UserEvent userEvent = UserEvent.builder()
+                .userId(review.getUserId())
+                .eventType("REVIEW")
+                .operation("REMOVE")
+                .entityId(review.getReviewId())
+                .build();
+        userEventStorage.save(userEvent);
         reviewStorage.delete(id);
     }
 
