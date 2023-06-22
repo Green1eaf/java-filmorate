@@ -4,6 +4,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -67,8 +68,9 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<Film> search() {
-        return filmService.findPopularFilms();
+    public List<Film> searchFilms(@RequestParam(required = false) String query,
+                                  @RequestParam(required = false) String params) {
+        return filmService.searchFilms(query, params);
     }
 
 }

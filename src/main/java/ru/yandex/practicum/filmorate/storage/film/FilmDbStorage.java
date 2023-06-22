@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -180,4 +181,40 @@ public class FilmDbStorage implements FilmStorage {
                         + "ORDER BY " + sortBy,
                 new Object[]{id}, new FilmMapper());
     }
+
+    @Override
+    public List<Film> searchFilms(String query, String directorAndTitle) {
+        String[] splitedRequest = directorAndTitle.split(",");
+        switch (splitedRequest.length) {
+            case (1):
+                if (splitedRequest[0].equals("title")) {
+                    return getFilmsByPartOfTitle(query);
+                }
+                return getFilmsByPartOfDirectorName(query);
+            case (2):
+                List<Film> filmsWithSearchedNames = getFilmsByPartOfTitle(query);
+                List<Film> filmsWithSearchedDirectors = getFilmsByPartOfDirectorName(query);
+                filmsWithSearchedNames.addAll(filmsWithSearchedDirectors);
+                return filmsWithSearchedNames;
+        }
+        return new ArrayList<>();
+    }
+
+
+    public List<Film> getFilmsByPartOfTitle(String filmNamePart) {
+        String sqlString = "SELECT * FROM FILMS WHERE LCASE(FILM_NAME) " +
+                "LIKE '%" + filmNamePart.toLowerCase() + "%'";
+        return jdbcTemplate.query(sqlString, new FilmMapper());
+
+    }
+
+    public List<Film> getFilmsByPartOfDirectorName(String directorNamePart) {
+        String sqlString = "SELECT * FROM FILMS WHERE FILM_ID IN " +
+                "(SELECT FILM_ID FROM FILM_DIRECTORS " +
+                "WHERE DIRECTOR_ID IN (SELECT DIRECTORS.DIRECTOR_ID FROM DIRECTORS " +
+                "WHERE LCASE(DIRECTOR_NAME) like '%" + directorNamePart.toLowerCase() + "%'))";
+        return jdbcTemplate.query(sqlString, new FilmMapper());
+    }
+
+
 }

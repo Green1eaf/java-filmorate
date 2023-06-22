@@ -94,12 +94,21 @@ public class FilmService {
     public List<Film> findPopularFilms() {
         log.info("find popular films ordered by likes");
         return filmStorage.findAll().stream()
-                .sorted(Comparator.comparing((Film film) -> film.getLikes().size()).thenComparing(Film::getId))
+                .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId))
                 .collect(Collectors.toList());
     }
 
-
-}
+    public List<Film> searchFilms(String query, String directorAndTitle) {
+        List<Film> result;
+        if (query == null && directorAndTitle == null ) {
+            result = findPopularFilms();
+        } else {
+            result = filmStorage.searchFilms(query, directorAndTitle).stream()
+                    .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId))
+                    .collect(Collectors.toList());
+        }
+        return result;
+    }
 
     public List<Film> getFilmsByDirector(long id, String sortBy) {
         directorService.getById(id);
