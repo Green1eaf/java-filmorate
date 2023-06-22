@@ -27,19 +27,19 @@ public class FilmService {
     private final LikeStorage likeStorage;
     private final UserEventStorage userEventStorage;
     private final GenreStorage genreStorage;
-    private final DirectorService directorService;
-
-    public FilmService(FilmStorage filmStorage, UserService userService, DirectorService directorService,
-            LikeStorage likeStorage, UserEventStorage userEventStorage) {
     private static final Integer DEFAULT_SEARCH_LIMIT_VALUE = 10;
 
-    public FilmService(FilmStorage filmStorage, UserService userService, LikeStorage likeStorage, GenreStorage genreStorage, DirectorService directorService) {
+    public FilmService(FilmStorage filmStorage,
+                       UserService userService,
+                       LikeStorage likeStorage,
+                       GenreStorage genreStorage,
+                       DirectorService directorService,
+                       UserEventStorage userEventStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.directorService = directorService;
         this.likeStorage = likeStorage;
         this.genreStorage = genreStorage;
-        this.directorService = directorService;
         this.userEventStorage = userEventStorage;
     }
 
@@ -91,8 +91,8 @@ public class FilmService {
         return filmStorage.findAll().stream()
                 .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
                 .limit(count == null ? DEFAULT_SEARCH_LIMIT_VALUE : count)
-                .filter(genreId == null ? film -> true : film -> film.getGenres().contains(genreStorage.get(genreId)))
-                .filter(year == null ? film -> true : film -> film.getReleaseDate().getYear() == year)
+                .filter(film -> genreId == null || film.getGenres().contains(genreStorage.get(genreId)))
+                .filter(film -> year == null || film.getReleaseDate().getYear() == year)
                 .collect(Collectors.toList());
     }
 
