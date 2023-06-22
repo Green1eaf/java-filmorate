@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/reviews")
@@ -23,7 +22,7 @@ public class ReviewController {
     }
 
     @PutMapping
-    public Optional<Review> update(@Valid @RequestBody Review review) {
+    public Review update(@Valid @RequestBody Review review) {
         return reviewService.update(review);
     }
 
