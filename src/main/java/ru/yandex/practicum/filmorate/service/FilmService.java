@@ -24,7 +24,7 @@ public class FilmService {
     private final LikeStorage likeStorage;
     private final UserEventStorage userEventStorage;
 
-    public FilmService(FilmStorage filmStorage, UserService userService, LikeStorage likeStorage,UserEventStorage userEventStorage) {
+    public FilmService(FilmStorage filmStorage, UserService userService, LikeStorage likeStorage, UserEventStorage userEventStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.likeStorage = likeStorage;

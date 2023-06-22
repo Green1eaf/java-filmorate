@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 
 import java.time.LocalDate;
 import java.util.Collections;
@@ -50,7 +49,6 @@ public class UserEventDbStorageTest {
     public void testSave() {
         UserEvent userEvent = new UserEvent();
         userEvent.setEventId(1L);
-        //userEvent.setTimestamp(System.currentTimeMillis());
         userEvent.setUserId(user.getId());
         userEvent.setEventType("LIKE");
         userEvent.setOperation("ADD");
@@ -67,7 +65,6 @@ public class UserEventDbStorageTest {
     public void testFindByUserIdOrderByTimestampDesc() {
         UserEvent userEvent = new UserEvent();
         userEvent.setEventId(1L);
-        //userEvent.setTimestamp(System.currentTimeMillis());
         userEvent.setUserId(user.getId());
         userEvent.setEventType("LIKE");
         userEvent.setOperation("REMOVE");
