@@ -92,15 +92,14 @@ public class FilmService {
     }
 
     public List<Film> getFilmsByDirector(long id, String sortBy) {
-        directorService.getDirector(id);
-        if (sortBy.equals("year")) {
-            return filmStorage.getFilmsByDirector(id, sortBy + "s");
-        } else {
-            if (sortBy.equals("likes")) {
+        directorService.getById(id);
+        switch (sortBy) {
+            case "year":
+                return filmStorage.getFilmsByDirector(id, sortBy + "s");
+            case "likes":
                 return filmStorage.getFilmsByDirector(id, sortBy);
-            } else {
-                throw new BadRequestException("Неверный текст запроса: " + sortBy);
-            }
+            default:
+                throw new BadRequestException("Некорректный параметр сортировки: " + sortBy);
         }
     }
 }

@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class DirectorService {
@@ -16,13 +15,9 @@ public class DirectorService {
         this.directorStorage = directorStorage;
     }
 
-    public Director getDirector(long id) {
-        Optional<Director> foundDirector = directorStorage.get(id);
-        if (foundDirector.isPresent()) {
-            return foundDirector.get();
-        } else {
-            throw new NotExistException("Director is not found");
-        }
+    public Director getById(long id) {
+        return directorStorage.get(id)
+                .orElseThrow(() -> new NotExistException("Director is not found"));
     }
 
     public List<Director> getAll() {
@@ -34,14 +29,12 @@ public class DirectorService {
     }
 
     public Director update(Director director) {
-        if (directorStorage.get(director.getId()).isEmpty()) {
-            throw new NotExistException("Director is not found");
-        }
+        getById(director.getId());
         return directorStorage.update(director);
     }
 
     public void remove(long id) {
-        getDirector(id);
+        getById(id);
         directorStorage.delete(id);
     }
 

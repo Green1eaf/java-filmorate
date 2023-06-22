@@ -22,7 +22,7 @@ public class DirectorController {
 
     @GetMapping("/{id}")
     public Director getDirector(@PathVariable Long id) {
-        return directorService.getDirector(id);
+        return directorService.getById(id);
     }
 
     @PostMapping
