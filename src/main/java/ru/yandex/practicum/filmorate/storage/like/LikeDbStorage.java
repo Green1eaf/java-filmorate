@@ -17,9 +17,9 @@ public class LikeDbStorage implements LikeStorage {
 
 
     @Override
-    public List<Long> getAll(long filmId) {
+    public List<Integer> getAll(Integer filmId) {
         return jdbcTemplate.query("SELECT user_id FROM likes WHERE film_id=?",
-                new Object[]{filmId}, new BeanPropertyRowMapper<>());
+                new Object[]{filmId}, new BeanPropertyRowMapper<>(Integer.class));
     }
 
     @Override

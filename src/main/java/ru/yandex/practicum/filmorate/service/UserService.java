@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -18,12 +19,13 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-
     private final FilmService filmService;
+    private final LikeService likeService;
 
-    public UserService(UserStorage userStorage, @Lazy FilmService filmService) {
+    public UserService(UserStorage userStorage, LikeService likeService, @Lazy FilmService filmService) {
         this.userStorage = userStorage;
         this.filmService = filmService;
+        this.likeService = likeService;
     }
 
     public List<User> findAll() {
@@ -90,20 +92,28 @@ public class UserService {
         log.info("remove user with id={}", userId);
     }
 
-    public List<Film> getRecommendationFilms(@PathVariable long id) {
+    public List<Film> getRecommendationFilms(long id) {
         User user = get(id);
         List<Film> films = filmService.findAll();
         List<Film> recommendationFilms = new ArrayList<>();
         if (films.isEmpty()) {
             return recommendationFilms;
         }
+        List<Film> likesUser = new ArrayList<>();
+        for (Film film : films) {
+            Integer id1 = user.getId().intValue();
+            List<Integer> all = likeService.getAll(id1);
+            if (all.contains(user.getId())) {
+                likesUser.add(film);
+            }
+        }
 
-        List<Film> likesUser = films.stream().filter(film -> film.getLikes().contains(user.getId())).collect(Collectors.toList());
+        // List<Film> likesUser = films.stream().filter(film -> likeDbStorage.getAll(film.getId()).contains(user.getId())).collect(Collectors.toList());
         if (likesUser.isEmpty()) {
             return recommendationFilms;
         }
         Map<User, Integer> countLikesUser = new HashMap<>();
-        likesUser.forEach(film -> film.getLikes().forEach(idUser -> {
+        likesUser.forEach(film -> likeService.getAll(film.getId().intValue()).forEach(idUser -> {
             User user1 = get(idUser);
             if (countLikesUser.containsKey(user1)) {
                 countLikesUser.put(user1, countLikesUser.get(user1) + 1);
@@ -112,12 +122,12 @@ public class UserService {
             }
         }));
         User userMaxLike = Collections.max(countLikesUser.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
-
-        likesUser.forEach(film -> {
-            if (!film.getLikes().contains(userMaxLike.getId())) {
-                recommendationFilms.add(film);
-            }
-        });
-        return recommendationFilms;
+        List<Film> commonFilms = filmService.getCommonFilms(user.getId(), userMaxLike.getId());
+//        likesUser.forEach(film -> {
+//            if (!likeDbStorage.getAll(film.getId()).contains(userMaxLike.getId())) {
+//                recommendationFilms.add(film);
+//            }
+//        });
+        return commonFilms;
     }
 }
