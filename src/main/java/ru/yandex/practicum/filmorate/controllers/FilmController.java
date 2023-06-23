@@ -11,6 +11,8 @@ import java.util.List;
 @RequestMapping("/films")
 public class FilmController {
     private final FilmService filmService;
+    private static final String DEFAULT_SEARCH_LIMIT_VALUE = "10";
+
 
     public FilmController(FilmService filmService) {
         this.filmService = filmService;
@@ -42,10 +44,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> findFilteredFilms(@RequestParam(required = false) Integer count,
-                                        @RequestParam(required = false) Long genreId,
-                                        @RequestParam(required = false) Integer year) {
-        return filmService.findFilteredPopularFilms(count, genreId, year);
+    public List<Film> findPopularFilmsWithFilter(@RequestParam(required = false, name = "count", defaultValue = DEFAULT_SEARCH_LIMIT_VALUE) Integer limit,
+                                                 @RequestParam(required = false, name = "genreId") Long filterByGenreId,
+                                                 @RequestParam(required = false, name = "year") Integer filterByYear) {
+        return filmService.findFilteredPopularFilms(limit, filterByGenreId, filterByYear);
     }
 
     @GetMapping("/{id}")
@@ -70,9 +72,9 @@ public class FilmController {
     }
 
     @GetMapping("/search")
-    public List<Film> searchFilms(@RequestParam(required = false) String query,
-                                  @RequestParam(required = false) String by) {
-        return filmService.searchFilms(query, by);
+    public List<Film> searchFilms(@RequestParam(required = false, name = "query") String searchQuery,
+                                  @RequestParam(required = false, name = "by") String searchParams) {
+        return filmService.searchFilms(searchQuery, searchParams);
     }
 
 }

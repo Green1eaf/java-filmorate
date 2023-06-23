@@ -185,13 +185,11 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchFilms(String query, String directorAndTitle) {
         String[] requestString = directorAndTitle.split(",");
+        List<Film> filmList = new ArrayList<>();
         switch (requestString.length) {
-            case (1):
-                if (requestString[0].equals("title")) {
-                    return getFilmsByPartOfTitle(query);
-                }
-                return getFilmsByPartOfDirectorName(query);
-            case (2):
+            case 1:
+                return requestString[0].equals("title") ? getFilmsByPartOfTitle(query) : getFilmsByPartOfDirectorName(query);
+            case 2:
                 List<Film> filmsWithSearchedNames = getFilmsByPartOfTitle(query);
                 List<Film> filmsWithSearchedDirectors = getFilmsByPartOfDirectorName(query);
                 filmsWithSearchedDirectors.addAll(filmsWithSearchedNames);
@@ -200,7 +198,7 @@ public class FilmDbStorage implements FilmStorage {
         return new ArrayList<>();
     }
 
-
+    @Override
     public List<Film> getFilmsByPartOfTitle(String filmNamePart) {
         String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
                 + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "

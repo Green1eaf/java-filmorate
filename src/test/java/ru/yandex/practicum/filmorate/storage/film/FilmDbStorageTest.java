@@ -33,6 +33,7 @@ class FilmDbStorageTest {
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;
     private static final Film FILM;
+    private static final Film SECONDFILM;
     private static final User USER;
     private static final User FRIEND;
 
@@ -43,7 +44,9 @@ class FilmDbStorageTest {
                 LocalDate.of(1986, 3, 14), null);
         FRIEND = new User(null, "friend@ya.com", "friend", "friend",
                 LocalDate.of(1986, 3, 14), null);
-        FILM = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
+        FILM = new Film(null, "testfilm", "desc", LocalDate.of(2000, 1, 1), 100,
+                new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
+        SECONDFILM = new Film(null, "film", "desc", LocalDate.of(2000, 1, 1), 100,
                 new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
         DIRECTOR = new Director(1L, "Director");
     }
@@ -51,7 +54,9 @@ class FilmDbStorageTest {
     @BeforeEach
     public void init() {
         filmStorage.create(FILM);
+        filmStorage.create(SECONDFILM);
         FILM.setId(1L);
+        SECONDFILM.setId(2L);
     }
 
     @Test
@@ -128,5 +133,27 @@ class FilmDbStorageTest {
         FILM.setRate(2);
         Assertions.assertArrayEquals(filmStorage.getCommonFilms(USER.getId(), FRIEND.getId()).toArray(),
                 List.of(FILM).toArray());
+    }
+
+    @Test
+    void getFilmByPartOfTitle() {
+        assertEquals(FILM, filmStorage.getFilmsByPartOfTitle("te").get(0));
+    }
+
+    @Test
+    void getFilmByPartOfDirectorName() {
+        directorStorage.create(DIRECTOR);
+        directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
+        assertEquals(filmStorage.get(FILM.getId()), filmStorage.getFilmsByPartOfDirectorName("dir").get(0));
+    }
+
+    @Test
+    void searchFilm() {
+        directorStorage.create(DIRECTOR);
+        directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
+        directorStorage.addAllToFilm(SECONDFILM.getId(), List.of(DIRECTOR));
+        assertEquals(filmStorage.findAll(), filmStorage.searchFilms("film", "title"));
+        assertEquals(filmStorage.findAll(), filmStorage.searchFilms("dir", "director"));
+        assertEquals(filmStorage.findAll(), filmStorage.searchFilms("film", "title,director"));
     }
 }
