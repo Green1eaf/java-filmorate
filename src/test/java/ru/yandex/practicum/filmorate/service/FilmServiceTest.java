@@ -65,7 +65,6 @@ public class FilmServiceTest {
                 .build();
         filmService.create(thirdFilm);
 
-
         user = User.builder()
                 .email("test@ya.com")
                 .login("testLogin")
