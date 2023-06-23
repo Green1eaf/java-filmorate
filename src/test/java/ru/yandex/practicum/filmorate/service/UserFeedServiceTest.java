@@ -38,7 +38,6 @@ public class UserFeedServiceTest {
 
     private UserFeedService userFeedService;
     private User user;
-    private Film film;
     private static final long USER_ID = 1;
 
     @BeforeEach
@@ -48,7 +47,7 @@ public class UserFeedServiceTest {
                 LocalDate.of(1986, 3, 14), null);
         userStorage.create(user);
         user.setId(USER_ID);
-        film = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
+        Film film = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
                 new Mpa(1L, "G"), 0, Collections.emptyList(), Collections.emptyList());
         filmStorage.create(film);
         filmService.like(film.getId(), user.getId());

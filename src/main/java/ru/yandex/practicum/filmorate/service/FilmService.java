@@ -27,7 +27,6 @@ public class FilmService {
     private final UserEventStorage userEventStorage;
     private final GenreStorage genreStorage;
 
-
     public FilmService(FilmStorage filmStorage,
                        UserService userService,
                        LikeStorage likeStorage,

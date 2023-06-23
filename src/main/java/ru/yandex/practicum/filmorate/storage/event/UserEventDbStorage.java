@@ -19,7 +19,8 @@ public class UserEventDbStorage implements UserEventStorage {
     @Override
     public void save(UserEvent userEvent) {
         String sql = "INSERT INTO user_events (timestamp, user_id, event_type, operation, entity_id) VALUES (?, ?, ?, ?, ?)";
-        jdbcTemplate.update(sql, userEvent.getTimestamp(), userEvent.getUserId(), userEvent.getEventType(), userEvent.getOperation(), userEvent.getEntityId());
+        jdbcTemplate.update(sql, userEvent.getTimestamp(), userEvent.getUserId(), userEvent.getEventType(),
+                userEvent.getOperation(), userEvent.getEntityId());
     }
 
     @Override

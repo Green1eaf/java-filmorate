@@ -29,7 +29,8 @@ public class ReviewService {
         filmService.getById(review.getFilmId());
         userService.get(review.getUserId());
         reviewStorage.create(review);
-        log.info("added review with id: {} from user id: {} for film id: {}", review.getReviewId(), review.getUserId(), review.getFilmId());
+        log.info("added review with id: {} from user id: {} for film id: {}",
+                review.getReviewId(), review.getUserId(), review.getFilmId());
         UserEvent userEvent = UserEvent.builder()
                 .userId(review.getUserId())
                 .eventType("REVIEW")
@@ -45,7 +46,8 @@ public class ReviewService {
         Review existingReview = get(review.getReviewId());
         long previousUserId = existingReview.getUserId();
         long previousEntityId = existingReview.getFilmId();
-        log.info("updated review with id: {} from user id: {} for film id: {}", review.getReviewId(), review.getUserId(), review.getFilmId());
+        log.info("updated review with id: {} from user id: {} for film id: {}",
+                review.getReviewId(), review.getUserId(), review.getFilmId());
         UserEvent userEvent = UserEvent.builder()
                 .userId(previousUserId)
                 .eventType("REVIEW")
@@ -53,12 +55,14 @@ public class ReviewService {
                 .entityId(previousEntityId)
                 .build();
         userEventStorage.save(userEvent);
-        return reviewStorage.update(review).orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
+        return reviewStorage.update(review)
+                .orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
     }
 
     public void delete(Long id) {
         Review review = get(id);
-        log.info("deleted review with id: {} from user id: {} for film id: {}", id, review.getUserId(), review.getFilmId());
+        log.info("deleted review with id: {} from user id: {} for film id: {}",
+                id, review.getUserId(), review.getFilmId());
         UserEvent userEvent = UserEvent.builder()
                 .userId(review.getUserId())
                 .eventType("REVIEW")

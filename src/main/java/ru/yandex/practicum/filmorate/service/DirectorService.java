@@ -38,11 +38,6 @@ public class DirectorService {
         directorStorage.delete(id);
     }
 
-    public void removeAllFromFilm(long filmId) {
-        getById(filmId);
-        directorStorage.deleteAllFromFilm(filmId);
-    }
-
     public void updateAllToFilm(long filmId, List<Director> directors) {
         directorStorage.updateAllToFilm(filmId, directors);
     }

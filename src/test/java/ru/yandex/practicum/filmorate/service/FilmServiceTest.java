@@ -26,8 +26,6 @@ public class FilmServiceTest {
     private Film firstFilm;
     private Film secondFilm;
     private Film thirdFilm;
-    private User user;
-    private User friend;
     private Director director;
 
     @BeforeEach
@@ -65,7 +63,7 @@ public class FilmServiceTest {
                 .build();
         filmService.create(thirdFilm);
 
-        user = User.builder()
+        User user = User.builder()
                 .email("test@ya.com")
                 .login("testLogin")
                 .name("updateName")
@@ -73,7 +71,7 @@ public class FilmServiceTest {
                 .build();
         userService.create(user);
 
-        friend = User.builder()
+        User friend = User.builder()
                 .email("friend@ya.com")
                 .login("friendLogin")
                 .name("friendName")

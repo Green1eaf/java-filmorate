@@ -77,9 +77,7 @@ public class ReviewServiceTest {
                 .userId(-1L)
                 .filmId(film.getId())
                 .build();
-        assertThrows(NotExistException.class, () -> {
-            reviewService.create(testReview);
-        });
+        assertThrows(NotExistException.class, () -> reviewService.create(testReview));
     }
 
     @Test
@@ -90,9 +88,7 @@ public class ReviewServiceTest {
                 .userId(user.getId())
                 .filmId(-1L)
                 .build();
-        assertThrows(NotExistException.class, () -> {
-            reviewService.create(testReview);
-        });
+        assertThrows(NotExistException.class, () -> reviewService.create(testReview));
     }
 
     @Test

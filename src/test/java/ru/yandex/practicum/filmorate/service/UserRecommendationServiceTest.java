@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
-
 public class UserRecommendationServiceTest {
     @Mock
     UserStorage userStorage;
@@ -38,10 +37,12 @@ public class UserRecommendationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userStorage, likeDbStorage,  userEventStorage, filmService);
+        userService = new UserService(userStorage, likeDbStorage, userEventStorage, filmService);
     }
 
-    // когда у пользователя нет лайкнутых фильмов
+    /**
+     * когда у пользователя нет лайкнутых фильмов
+     **/
     @Test
     public void testGetRecommendationFilms_noLikedFilms() {
         User user1 = User.builder().id(1L).login("user1").email("user1@example.com").build();
@@ -54,9 +55,11 @@ public class UserRecommendationServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    // когда у пользователя есть лайкнутые фильмы,
-    // но нет других пользователей,
-    // которые лайкнули те же фильмы
+    /**
+     * когда у пользователя есть лайкнутые фильмы,
+     * но нет других пользователей,
+     * которые лайкнули те же фильмы
+     **/
     @Test
     public void testGetRecommendationFilms_noOtherUsersLikedSameFilms() {
         User user = User.builder().id(1L).login("user1").email("user1@example.com").build();
@@ -71,9 +74,11 @@ public class UserRecommendationServiceTest {
         assertTrue(result.isEmpty());
     }
 
-    // когда у пользователя есть лайкнутые фильмы
-    // и есть другие пользователи, которые лайкнули те же фильмы,
-    // но у этих пользователей нет других лайкнутых фильмов
+    /**
+     * когда у пользователя есть лайкнутые фильмы
+     * и есть другие пользователи, которые лайкнули те же фильмы,
+     * но у этих пользователей нет других лайкнутых фильмов
+     **/
     @Test
     public void testGetRecommendationFilms_otherUsersLikedSameFilmsButNoOtherLikedFilms() {
         User user = User.builder().id(1L).login("user1").email("user1@example.com").build();
