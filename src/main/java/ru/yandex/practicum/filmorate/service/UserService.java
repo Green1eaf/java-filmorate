@@ -122,18 +122,18 @@ public class UserService {
             return Collections.emptyList();
         }
 
-        Map<User, Integer> countLikesUser = new HashMap<>();
+        Map<User, Integer> userLikesCounts = new HashMap<>();
         likedFilms.forEach(film -> likeDbStorage.getAll(film.getId()).stream()
                 .filter(idUser -> !idUser.equals(user.getId()))
                 .map(this::get)
-                .forEach(user1 -> countLikesUser.put(user1, countLikesUser.getOrDefault(user1, 0) + 1)));
+                .forEach(anotherUser -> userLikesCounts.put(anotherUser, userLikesCounts.getOrDefault(anotherUser, 0) + 1)));
 
-        if (countLikesUser.isEmpty()) {
+        if (userLikesCounts.isEmpty()) {
             log.info("No other users liked the same films as user {}", user);
             return Collections.emptyList();
         }
 
-        User userMaxLike = Collections.max(countLikesUser.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+        User userMaxLike = Collections.max(userLikesCounts.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         List<Film> recommendedFilms = films.stream()
                 .filter(film -> likeDbStorage.getAll(film.getId()).contains(userMaxLike.getId()))
                 .collect(Collectors.toList());

@@ -64,11 +64,6 @@ public class UserController {
     @GetMapping("/{id}/recommendations")
     public List<Film> getRecommendationFilms(@PathVariable long id) {
         List<Film> recommendationFilms = userService.getRecommendationFilms(id);
-//        if (recommendationFilms.isEmpty()){
-//            return ResponseEntity.ok("");
-//        } else {
-//            return ResponseEntity.ok(recommendationFilms);
-//        }
         return recommendationFilms;
     }
 }
