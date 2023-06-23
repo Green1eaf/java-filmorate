@@ -42,10 +42,10 @@ public class FilmController {
     }
 
     @GetMapping("/popular")
-    public List<Film> findFilteredFilms(@RequestParam(required = false) Integer count,
-                                        @RequestParam(required = false) Long genreId,
-                                        @RequestParam(required = false) Integer year) {
-        return filmService.findFilteredPopularFilms(count, genreId, year);
+    public List<Film> findPopularFilmsWithFilter(@RequestParam(required = false, name = "count") Integer limit,
+                                        @RequestParam(required = false, name = "genreId") Long filterByGenreId,
+                                        @RequestParam(required = false, name = "year") Integer filterByYear) {
+        return filmService.findFilteredPopularFilms(limit, filterByGenreId, filterByYear);
     }
 
     @GetMapping("/{id}")
