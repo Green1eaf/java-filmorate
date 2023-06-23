@@ -26,7 +26,7 @@ public class FilmService {
     private final LikeStorage likeStorage;
     private final UserEventStorage userEventStorage;
     private final GenreStorage genreStorage;
-    private static final Integer DEFAULT_SEARCH_LIMIT_VALUE = 10;
+
 
     public FilmService(FilmStorage filmStorage,
                        UserService userService,
@@ -85,13 +85,21 @@ public class FilmService {
         userEventStorage.save(userEvent);
     }
 
-    public List<Film> findFilteredPopularFilms(Integer count, Long genreId, Integer year) {
-        log.info("find " + count + " most popular films with genreId = " + genreId + " and release year = " + year);
+    public List<Film> findFilteredPopularFilms(Integer limit, Long genreId, Integer year) {
+        log.info("find " + limit + " most popular films with genreId = " + genreId + " and release year = " + year);
         return filmStorage.findAll().stream()
                 .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
-                .limit(count == null ? DEFAULT_SEARCH_LIMIT_VALUE : count)
+                .limit(limit)
                 .filter(film -> genreId == null || film.getGenres().contains(genreStorage.get(genreId)))
                 .filter(film -> year == null || film.getReleaseDate().getYear() == year)
+
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> searchFilms(String query, String directorAndTitle) {
+        return (query == null && directorAndTitle == null) ? findFilteredPopularFilms(null, null, null)
+                : filmStorage.searchFilms(query, directorAndTitle).stream()
+                .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
                 .collect(Collectors.toList());
     }
 
