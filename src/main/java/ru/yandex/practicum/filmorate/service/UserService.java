@@ -1,18 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,10 +22,15 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final UserEventStorage userEventStorage;
+    private final FilmService filmService;
+    private final LikeDbStorage likeDbStorage;
 
-    public UserService(UserStorage userStorage,UserEventStorage userEventStorage) {
+
+    public UserService(UserStorage userStorage, LikeDbStorage likeDbStorage, UserEventStorage userEventStorage, @Lazy FilmService filmService) {
         this.userStorage = userStorage;
         this.userEventStorage = userEventStorage;
+        this.filmService = filmService;
+        this.likeDbStorage = likeDbStorage;
     }
 
     public List<User> findAll() {
@@ -103,5 +109,36 @@ public class UserService {
     public void removeById(long userId) {
         userStorage.delete(userId);
         log.info("remove user with id={}", userId);
+    }
+
+    public List<Film> getRecommendationFilms(long id) {
+        User user = get(id);
+        List<Film> films = filmService.findAll();
+        List<Film> likedFilms = films.stream()
+                .filter(film -> likeDbStorage.getAll(film.getId()).contains(user.getId()))
+                .collect(Collectors.toList());
+        if (films.isEmpty() || likedFilms.isEmpty()) {
+            log.info("No recommendation films found");
+            return Collections.emptyList();
+        }
+
+        Map<User, Integer> userLikesCounts = new HashMap<>();
+        likedFilms.forEach(film -> likeDbStorage.getAll(film.getId()).stream()
+                .filter(idUser -> !idUser.equals(user.getId()))
+                .map(this::get)
+                .forEach(anotherUser -> userLikesCounts.put(anotherUser, userLikesCounts.getOrDefault(anotherUser, 0) + 1)));
+
+        if (userLikesCounts.isEmpty()) {
+            log.info("No other users liked the same films as user {}", user);
+            return Collections.emptyList();
+        }
+
+        User userMaxLike = Collections.max(userLikesCounts.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
+        List<Film> recommendedFilms = films.stream()
+                .filter(film -> likeDbStorage.getAll(film.getId()).contains(userMaxLike.getId()))
+                .collect(Collectors.toList());
+
+        recommendedFilms.removeAll(likedFilms);
+        return recommendedFilms;
     }
 }
