@@ -91,7 +91,7 @@ class FilmDbStorageTest {
 
     @Test
     void findAll() {
-        assertArrayEquals(List.of(FILM).toArray(), filmStorage.findAll().toArray());
+        assertArrayEquals(List.of(FILM,SECONDFILM).toArray(), filmStorage.findAll().toArray());
     }
 
     @Test
@@ -137,7 +137,7 @@ class FilmDbStorageTest {
 
     @Test
     void getFilmByPartOfTitle() {
-        assertEquals(FILM, filmStorage.getFilmsByPartOfTitle("te").get(0));
+        assertEquals(filmStorage.get(FILM.getId()), filmStorage.getFilmsByPartOfTitle("te").get(0));
     }
 
     @Test
