@@ -1,15 +1,14 @@
 package ru.yandex.practicum.filmorate.storage.director;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Repository
 public class DirectorDbStorage implements DirectorStorage {
@@ -22,12 +21,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public List<Director> findAll() {
         String sqlQuery = "SELECT * FROM DIRECTORS";
-        List<Optional<Director>> directors = jdbcTemplate.query(sqlQuery, this::mapRowToDirector);
-        List<Director> result = new ArrayList<>();
-        for (Optional<Director> director : directors) {
-            director.ifPresent(result::add);
-        }
-        return result;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToDirector);
     }
 
     @Override
@@ -36,18 +30,15 @@ public class DirectorDbStorage implements DirectorStorage {
                 .withTableName("directors")
                 .usingGeneratedKeyColumns("id");
         long id = simpleJdbcInsert.executeAndReturnKey(DirectorMapper.toMap(director)).longValue();
-        director.setId((int) id);
+        director.setId((int)id);
         return director;
     }
 
     @Override
     public Optional<Director> get(long id) {
-        try {
-            String sqlQuery = "SELECT ID, NAME FROM directors where id = ?";
-            return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToDirector, id);
-        } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
-        }
+        String sqlQuery = "SELECT ID, NAME FROM directors where id = ?";
+        List<Director> directors = jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
+        return directors.isEmpty() ? Optional.empty() : Optional.of(directors.get(0));
     }
 
     @Override
@@ -71,21 +62,16 @@ public class DirectorDbStorage implements DirectorStorage {
     public List<Director> getAllByFilmId(long id) {
         String sqlQuery = "SELECT FD.director_id as id, d.name as name FROM FILM_DIRECTOR"
                 + " as FD JOIN DIRECTORS as d on d.id = fd.director_id WHERE FD.FILM_ID = ?";
-        List<Optional<Director>> optionalList = jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
-        List<Director> result = new ArrayList<>();
-        for (Optional<Director> optionalDirector : optionalList) {
-            optionalDirector.ifPresent(result::add);
-        }
-        return result;
+        return jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
     }
+
 
     @Override
     public void addAllToFilm(long filmId, List<Director> directors) {
         if (directors != null) {
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (Director director : directors) {
-                batchArgs.add(new Object[]{filmId, director.getId()});
-            }
+            List<Object[]> batchArgs = directors.stream()
+                    .map(director -> new Object[]{filmId, director.getId()})
+                    .collect(Collectors.toList());
             jdbcTemplate.batchUpdate("INSERT INTO film_director (film_id, director_id) VALUES (?,?)", batchArgs);
         }
     }
@@ -96,10 +82,10 @@ public class DirectorDbStorage implements DirectorStorage {
         addAllToFilm(filmId, directors);
     }
 
-    private Optional<Director> mapRowToDirector(ResultSet resultSet, int i) throws SQLException {
-        return Optional.of(Director.builder()
+    private Director mapRowToDirector(ResultSet resultSet, int i) throws SQLException {
+        return Director.builder()
                 .id(resultSet.getInt("id"))
                 .name(resultSet.getString("name"))
-                .build());
+                .build();
     }
 }

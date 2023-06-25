@@ -13,8 +13,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Director {
-    long id;
+    private long id;
     @NotNull
     @NotBlank
-    String name;
+    private String name;
 }
