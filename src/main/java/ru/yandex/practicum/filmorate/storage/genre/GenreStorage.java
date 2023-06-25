@@ -14,6 +14,4 @@ public interface GenreStorage {
     void delete(long filmId);
 
     List<Genre> getAll();
-
-    List<Genre> getAllByFilmId(long id);
 }

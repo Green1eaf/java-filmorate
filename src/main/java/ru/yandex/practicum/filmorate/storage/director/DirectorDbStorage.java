@@ -4,6 +4,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
@@ -54,11 +55,6 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public void deleteAllFromFilm(long filmId) {
-        jdbcTemplate.update("DELETE FROM film_director WHERE film_id=?", filmId);
-    }
-
-    @Override
     public List<Director> getAllByFilmId(long id) {
         String sqlQuery = "SELECT FD.director_id as id, d.name as name FROM FILM_DIRECTOR"
                 + " as FD JOIN DIRECTORS as d on d.id = fd.director_id WHERE FD.FILM_ID = ?";
@@ -78,7 +74,7 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void updateAllToFilm(long filmId, List<Director> directors) {
-        deleteAllFromFilm(filmId);
+        jdbcTemplate.update("DELETE FROM film_director WHERE film_id=?", filmId);
         addAllToFilm(filmId, directors);
     }
 

@@ -16,7 +16,6 @@ public class LikeDbStorage implements LikeStorage {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-
     @Override
     public List<Long> getAll(long id) {
         String sqlQuery = "SELECT user_id FROM likes WHERE film_id = ?";

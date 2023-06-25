@@ -4,11 +4,11 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Repository
 public class GenreDbStorage implements GenreStorage {
@@ -55,13 +55,5 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public List<Genre> getAll() {
         return jdbcTemplate.query("SELECT * FROM genres", new BeanPropertyRowMapper<>(Genre.class));
-    }
-
-    @Override
-    public List<Genre> getAllByFilmId(long id) {
-        var genre = jdbcTemplate.query("SELECT * FROM genres g LEFT JOIN film_genre f ON g.id=f.genre_id " +
-                        "WHERE f.film_id=?", new Object[]{id},
-                new BeanPropertyRowMapper<>(Genre.class));
-        return CollectionUtils.isEmpty(genre) ? Collections.emptyList() : genre;
     }
 }

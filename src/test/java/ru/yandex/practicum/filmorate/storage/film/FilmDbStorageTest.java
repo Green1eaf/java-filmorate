@@ -33,7 +33,7 @@ class FilmDbStorageTest {
     private final LikeStorage likeStorage;
     private final DirectorStorage directorStorage;
     private static final Film FILM;
-    private static final Film SECONDFILM;
+    private static final Film SECOND_FILM;
     private static final User USER;
     private static final User FRIEND;
 
@@ -46,7 +46,7 @@ class FilmDbStorageTest {
                 LocalDate.of(1986, 3, 14), null);
         FILM = new Film(null, "testfilm", "desc", LocalDate.of(2000, 1, 1), 100,
                 new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
-        SECONDFILM = new Film(null, "film", "desc", LocalDate.of(2000, 1, 1), 100,
+        SECOND_FILM = new Film(null, "film", "desc", LocalDate.of(2000, 1, 1), 100,
                 new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
         DIRECTOR = new Director(1L, "Director");
     }
@@ -54,9 +54,9 @@ class FilmDbStorageTest {
     @BeforeEach
     public void init() {
         filmStorage.create(FILM);
-        filmStorage.create(SECONDFILM);
+        filmStorage.create(SECOND_FILM);
         FILM.setId(1L);
-        SECONDFILM.setId(2L);
+        SECOND_FILM.setId(2L);
     }
 
     @Test
@@ -91,7 +91,7 @@ class FilmDbStorageTest {
 
     @Test
     void findAll() {
-        assertArrayEquals(List.of(FILM,SECONDFILM).toArray(), filmStorage.findAll().toArray());
+        assertArrayEquals(List.of(FILM, SECOND_FILM).toArray(), filmStorage.findAll().toArray());
     }
 
     @Test
@@ -151,7 +151,7 @@ class FilmDbStorageTest {
     void searchFilm() {
         directorStorage.create(DIRECTOR);
         directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
-        directorStorage.addAllToFilm(SECONDFILM.getId(), List.of(DIRECTOR));
+        directorStorage.addAllToFilm(SECOND_FILM.getId(), List.of(DIRECTOR));
         assertEquals(filmStorage.findAll(), filmStorage.searchFilms("film", "title"));
         assertEquals(filmStorage.findAll(), filmStorage.searchFilms("dir", "director"));
         assertEquals(filmStorage.findAll(), filmStorage.searchFilms("film", "title,director"));

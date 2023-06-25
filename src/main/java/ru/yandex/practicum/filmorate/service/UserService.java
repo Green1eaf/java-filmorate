@@ -25,8 +25,8 @@ public class UserService {
     private final FilmService filmService;
     private final LikeDbStorage likeDbStorage;
 
-
-    public UserService(UserStorage userStorage, LikeDbStorage likeDbStorage, UserEventStorage userEventStorage, @Lazy FilmService filmService) {
+    public UserService(UserStorage userStorage, LikeDbStorage likeDbStorage,
+                       UserEventStorage userEventStorage, @Lazy FilmService filmService) {
         this.userStorage = userStorage;
         this.userEventStorage = userEventStorage;
         this.filmService = filmService;

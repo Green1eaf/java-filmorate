@@ -13,7 +13,7 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -185,7 +185,6 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> searchFilms(String query, String directorAndTitle) {
         String[] requestString = directorAndTitle.split(",");
-        List<Film> filmList = new ArrayList<>();
         switch (requestString.length) {
             case 1:
                 return requestString[0].equals("title") ? getFilmsByPartOfTitle(query) : getFilmsByPartOfDirectorName(query);
@@ -194,8 +193,9 @@ public class FilmDbStorage implements FilmStorage {
                 List<Film> filmsWithSearchedDirectors = getFilmsByPartOfDirectorName(query);
                 filmsWithSearchedDirectors.addAll(filmsWithSearchedNames);
                 return filmsWithSearchedDirectors;
+            default:
+                return Collections.emptyList();
         }
-        return new ArrayList<>();
     }
 
     @Override
@@ -226,7 +226,7 @@ public class FilmDbStorage implements FilmStorage {
                 + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
                 + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                 + "GROUP_CONCAT(g.name) AS genresnames, "
-                + "GROUP_CONCAT(d.id) AS directorsid, "
+                + "GROUP_CONCAT(DISTINCT d.id) AS directorsid, "
                 + "GROUP_CONCAT(d.NAME) AS directorsname "
                 + "FROM films AS f "
                 + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
@@ -241,6 +241,4 @@ public class FilmDbStorage implements FilmStorage {
                 + "GROUP BY f.id ";
         return jdbcTemplate.query(sqlString, new FilmMapper());
     }
-
-
 }
