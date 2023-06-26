@@ -107,5 +107,3 @@ public class FilmServiceTest {
         assertEquals(6, filmService.searchFilms("name", "title,director").size());
     }
 }
-
-
