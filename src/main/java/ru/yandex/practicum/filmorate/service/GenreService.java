@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
@@ -15,8 +16,10 @@ public class GenreService {
         this.genreStorage = genreStorage;
     }
 
-    public void addAll(long filmId, List<Genre> genres) {
-        genreStorage.add(filmId, genres);
+    public void addAll(Long filmId, List<Genre> genres) throws BadRequestException {
+        if (genres != null && filmId != null) {
+            genreStorage.add(filmId, genres);
+        }
     }
 
     public void update(long filmId, List<Genre> genres) {

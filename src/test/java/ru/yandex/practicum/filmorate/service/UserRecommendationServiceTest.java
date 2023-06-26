@@ -6,7 +6,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -30,14 +29,14 @@ public class UserRecommendationServiceTest {
     FilmService filmService;
 
     @Mock
-    UserEventStorage userEventStorage;
+    FeedService feedService;
 
     UserService userService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userStorage, likeDbStorage, userEventStorage, filmService);
+        userService = new UserService(userStorage, likeDbStorage, feedService, filmService);
     }
 
     /**

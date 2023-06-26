@@ -4,21 +4,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.service.UserFeedService;
+import ru.yandex.practicum.filmorate.service.FeedService;
 
 import java.util.List;
 
 @RestController
-public class UserFeedController {
+public class FeedController {
 
-    private final UserFeedService userFeedService;
+    private final FeedService feedService;
 
-    public UserFeedController(UserFeedService userFeedService) {
-        this.userFeedService = userFeedService;
+    public FeedController(FeedService feedService) {
+        this.feedService = feedService;
     }
 
     @GetMapping("/users/{id}/feed")
     public List<UserEvent> getUserFeed(@PathVariable Long id) {
-        return userFeedService.getUserFeed(id);
+        return feedService.getUserFeed(id);
     }
 }

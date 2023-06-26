@@ -7,11 +7,10 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -24,21 +23,21 @@ public class FilmService {
     private final UserService userService;
     private final DirectorService directorService;
     private final LikeStorage likeStorage;
-    private final UserEventStorage userEventStorage;
-    private final GenreStorage genreStorage;
+    private final GenreService genreService;
+    private final FeedService feedService;
 
     public FilmService(FilmStorage filmStorage,
                        UserService userService,
                        LikeStorage likeStorage,
-                       GenreStorage genreStorage,
+                       GenreService genreService,
                        DirectorService directorService,
-                       UserEventStorage userEventStorage) {
+                       FeedService feedService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.genreService = genreService;
         this.directorService = directorService;
         this.likeStorage = likeStorage;
-        this.genreStorage = genreStorage;
-        this.userEventStorage = userEventStorage;
+        this.feedService = feedService;
     }
 
     public List<Film> findAll() {
@@ -67,7 +66,7 @@ public class FilmService {
                 .operation("ADD")
                 .entityId(filmId)
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
     }
 
     public void removeLike(long id, long userId) {
@@ -81,7 +80,7 @@ public class FilmService {
                 .operation("REMOVE")
                 .entityId(getById(id).getId())
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
     }
 
     public List<Film> findFilteredPopularFilms(Integer limit, Long genreId, Integer year) {
@@ -89,15 +88,37 @@ public class FilmService {
         return filmStorage.findAll().stream()
                 .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
                 .limit(limit)
-                .filter(film -> genreId == null || film.getGenres().contains(genreStorage.get(genreId)))
+                .filter(film -> genreId == null || film.getGenres().contains(genreService.get(genreId)))
                 .filter(film -> year == null || film.getReleaseDate().getYear() == year)
-
                 .collect(Collectors.toList());
     }
 
+    public List<Film> findFilteredPopularFilms() {
+        log.info("find most popular films");
+        return filmStorage.findAll().stream()
+                .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
+                .collect(Collectors.toList());
+    }
+
+    public List<Film> searchFilmsByQuery(String query, String directorAndTitle) {
+        String[] requestString = directorAndTitle.split(",");
+        switch (requestString.length) {
+            case 1:
+                return requestString[0].equals("title") ? filmStorage.getFilmsByPartOfTitle(query)
+                        : filmStorage.getFilmsByPartOfDirectorName(query);
+            case 2:
+                List<Film> filmsWithSearchedNames = filmStorage.getFilmsByPartOfTitle(query);
+                List<Film> filmsWithSearchedDirectors = filmStorage.getFilmsByPartOfDirectorName(query);
+                filmsWithSearchedDirectors.addAll(filmsWithSearchedNames);
+                return filmsWithSearchedDirectors;
+            default:
+                return Collections.emptyList();
+        }
+    }
+
     public List<Film> searchFilms(String query, String directorAndTitle) {
-        return (query == null && directorAndTitle == null) ? findFilteredPopularFilms(null, null, null)
-                : filmStorage.searchFilms(query, directorAndTitle).stream()
+        return (query == null && directorAndTitle == null) ? findFilteredPopularFilms()
+                : searchFilmsByQuery(query, directorAndTitle).stream()
                 .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
                 .collect(Collectors.toList());
     }

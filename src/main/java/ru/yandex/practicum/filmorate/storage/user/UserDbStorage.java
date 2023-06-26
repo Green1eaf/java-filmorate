@@ -85,9 +85,9 @@ public class UserDbStorage implements UserStorage {
                 new UserMapper(), id);
     }
 
-    public boolean existsById(long id) {
+    @Override
+    public Integer findIdFromUsers(long id) {
         String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
-        Integer count = jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
-        return count != null && count > 0;
+        return jdbcTemplate.queryForObject(sql, new Object[]{id}, Integer.class);
     }
 }
