@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
@@ -24,21 +23,21 @@ public class FilmService {
     private final UserService userService;
     private final DirectorService directorService;
     private final LikeStorage likeStorage;
-    private final UserEventStorage userEventStorage;
     private final GenreStorage genreStorage;
+    private final FeedService feedService;
 
     public FilmService(FilmStorage filmStorage,
                        UserService userService,
                        LikeStorage likeStorage,
                        GenreStorage genreStorage,
                        DirectorService directorService,
-                       UserEventStorage userEventStorage) {
+                       FeedService feedService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.directorService = directorService;
         this.likeStorage = likeStorage;
         this.genreStorage = genreStorage;
-        this.userEventStorage = userEventStorage;
+        this.feedService = feedService;
     }
 
     public List<Film> findAll() {
@@ -67,7 +66,7 @@ public class FilmService {
                 .operation("ADD")
                 .entityId(filmId)
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
     }
 
     public void removeLike(long id, long userId) {
@@ -81,7 +80,7 @@ public class FilmService {
                 .operation("REMOVE")
                 .entityId(getById(id).getId())
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
     }
 
     public List<Film> findFilteredPopularFilms(Integer limit, Long genreId, Integer year) {

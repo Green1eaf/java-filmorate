@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.event;
+package ru.yandex.practicum.filmorate.storage.feed;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,9 +24,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql(scripts = {"/testData.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-public class UserEventDbStorageTest {
+public class FeedDbStorageTest {
 
-    private final UserEventStorage userEventStorage;
+    private final FeedStorage feedStorage;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
 
@@ -54,9 +54,9 @@ public class UserEventDbStorageTest {
         userEvent.setOperation("ADD");
         userEvent.setEntityId(film.getId());
 
-        userEventStorage.save(userEvent);
+        feedStorage.save(userEvent);
 
-        List<UserEvent> userEvents = userEventStorage.findByUserIdOrderByTimestampDesc(user.getId());
+        List<UserEvent> userEvents = feedStorage.findByUserIdOrderByTimestampAsc(user.getId());
         assertThat(userEvents).isNotEmpty();
         assertThat(userEvents.get(0)).isEqualToComparingFieldByField(userEvent);
     }
@@ -69,10 +69,10 @@ public class UserEventDbStorageTest {
         userEvent.setEventType("LIKE");
         userEvent.setOperation("REMOVE");
         userEvent.setEntityId(film.getId());
-        userEventStorage.save(userEvent);
+        feedStorage.save(userEvent);
 
         Long userId = user.getId();
-        List<UserEvent> userEvents = userEventStorage.findByUserIdOrderByTimestampDesc(userId);
+        List<UserEvent> userEvents = feedStorage.findByUserIdOrderByTimestampAsc(userId);
         assertThat(userEvents).isNotEmpty();
         assertThat(userEvents.get(0).getUserId()).isEqualTo(userId);
     }
