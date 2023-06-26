@@ -22,19 +22,19 @@ import static org.mockito.Mockito.*;
 public class LikeServiceTest {
 
     @Mock
-    LikeDbStorage likeDbStorage;
+    private LikeDbStorage likeDbStorage;
 
     @Mock
-    UserService userService;
+    private UserService userService;
 
     @Mock
-    FeedService feedService;
+    private FeedService feedService;
 
     @Mock
-    FilmService filmService;
+    private FilmService filmService;
 
     @InjectMocks
-    LikeService likeService;
+    private LikeService likeService;
 
     @Test
     public void testGetAll() {

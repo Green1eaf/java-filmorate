@@ -10,10 +10,10 @@ import java.util.List;
 @Service
 @Slf4j
 public class LikeService {
-    LikeDbStorage likeDbStorage;
-    UserService userService;
-    FeedService feedService;
-    FilmService filmService;
+    private final LikeDbStorage likeDbStorage;
+    private final UserService userService;
+    private final FeedService feedService;
+    private final  FilmService filmService;
 
     public LikeService(LikeDbStorage likeDbStorage, UserService userService, FeedService feedService, FilmService filmService) {
         this.likeDbStorage = likeDbStorage;
