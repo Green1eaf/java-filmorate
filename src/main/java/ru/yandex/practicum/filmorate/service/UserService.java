@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -21,14 +20,14 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserStorage userStorage;
-    private final UserEventStorage userEventStorage;
+    private final FeedService feedService;
     private final FilmService filmService;
     private final LikeDbStorage likeDbStorage;
 
     public UserService(UserStorage userStorage, LikeDbStorage likeDbStorage,
-                       UserEventStorage userEventStorage, @Lazy FilmService filmService) {
+                       @Lazy FeedService feedService, @Lazy FilmService filmService) {
         this.userStorage = userStorage;
-        this.userEventStorage = userEventStorage;
+        this.feedService = feedService;
         this.filmService = filmService;
         this.likeDbStorage = likeDbStorage;
     }
@@ -72,7 +71,7 @@ public class UserService {
                 .operation("ADD")
                 .entityId(friendId)
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
     }
 
     public void removeFriend(long id, long friendId) {
@@ -84,7 +83,7 @@ public class UserService {
                 .operation("REMOVE")
                 .entityId(friendId)
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
     }
 
     public List<User> findAllFriends(long id) {
@@ -140,5 +139,10 @@ public class UserService {
 
         recommendedFilms.removeAll(likedFilms);
         return recommendedFilms;
+    }
+
+    public boolean isExistsById(long id) {
+        Integer count = userStorage.findIdFromUsers(id);
+        return count != null && count > 0;
     }
 }

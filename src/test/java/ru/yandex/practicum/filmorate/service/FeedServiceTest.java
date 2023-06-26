@@ -13,8 +13,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
+import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
@@ -28,21 +27,21 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @Sql(scripts = {"/testData.sql"}, executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-public class UserFeedServiceTest {
+public class FeedServiceTest {
 
-    private final UserEventStorage userEventStorage;
-    private final UserDbStorage userDbStorage;
+    private final FeedStorage feedStorage;
+    private final UserService userService;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
     private final FilmService filmService;
 
-    private UserFeedService userFeedService;
+    private FeedService feedService;
     private User user;
     private static final long USER_ID = 1;
 
     @BeforeEach
     public void init() {
-        userFeedService = new UserFeedService(userEventStorage, userDbStorage);
+        feedService = new FeedService(feedStorage, userService);
         user = new User(null, "email@ya.com", "login", "name",
                 LocalDate.of(1986, 3, 14), null);
         userStorage.create(user);
@@ -57,7 +56,7 @@ public class UserFeedServiceTest {
     @Test
     public void testGetUserFeed() {
         Long userId = user.getId();
-        List<UserEvent> userEvents = userFeedService.getUserFeed(userId);
+        List<UserEvent> userEvents = feedService.getUserFeed(userId);
 
         assertThat(userEvents).isNotEmpty();
 
@@ -79,6 +78,6 @@ public class UserFeedServiceTest {
     @Test
     public void testGetUserFeedForNonExistingUser() {
         Long nonExistingUserId = 9999L;
-        assertThrows(NotExistException.class, () -> userFeedService.getUserFeed(nonExistingUserId));
+        assertThrows(NotExistException.class, () -> feedService.getUserFeed(nonExistingUserId));
     }
 }

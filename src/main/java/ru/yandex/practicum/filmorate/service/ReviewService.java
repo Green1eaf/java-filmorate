@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.event.UserEventStorage;
 import ru.yandex.practicum.filmorate.storage.review.ReviewStorage;
 
 import java.util.List;
@@ -16,13 +15,13 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmService filmService;
     private final UserService userService;
-    private final UserEventStorage userEventStorage;
+    private final FeedService feedService;
 
-    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService, UserEventStorage userEventDbStorage) {
+    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService, FeedService feedService) {
         this.reviewStorage = reviewStorage;
         this.filmService = filmService;
         this.userService = userService;
-        this.userEventStorage = userEventDbStorage;
+        this.feedService = feedService;
     }
 
     public Review create(Review review) {
@@ -37,7 +36,7 @@ public class ReviewService {
                 .operation("ADD")
                 .entityId(review.getReviewId())
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
         return review;
     }
 
@@ -54,7 +53,7 @@ public class ReviewService {
                 .operation("UPDATE")
                 .entityId(previousEntityId)
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
         return reviewStorage.update(review)
                 .orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
     }
@@ -69,7 +68,7 @@ public class ReviewService {
                 .operation("REMOVE")
                 .entityId(review.getReviewId())
                 .build();
-        userEventStorage.save(userEvent);
+        feedService.save(userEvent);
         reviewStorage.delete(id);
     }
 
