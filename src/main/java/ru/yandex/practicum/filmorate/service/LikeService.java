@@ -23,6 +23,10 @@ public class LikeService {
         this.userEventService = userEventService;
     }
 
+    public void add(long filmId, long userId, long mark) {
+        likeDbStorage.add(filmId, userId, mark);
+    }
+
     public void addLike(long filmId, long userId, long mark) {
         userService.get(userId);
         filmService.getById(filmId);
