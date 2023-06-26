@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.service.GenreService;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -180,22 +179,6 @@ public class FilmDbStorage implements FilmStorage {
                         + "GROUP BY f.id "
                         + "ORDER BY " + sortBy,
                 new Object[]{id}, new FilmMapper());
-    }
-
-    @Override
-    public List<Film> searchFilms(String query, String directorAndTitle) {
-        String[] requestString = directorAndTitle.split(",");
-        switch (requestString.length) {
-            case 1:
-                return requestString[0].equals("title") ? getFilmsByPartOfTitle(query) : getFilmsByPartOfDirectorName(query);
-            case 2:
-                List<Film> filmsWithSearchedNames = getFilmsByPartOfTitle(query);
-                List<Film> filmsWithSearchedDirectors = getFilmsByPartOfDirectorName(query);
-                filmsWithSearchedDirectors.addAll(filmsWithSearchedNames);
-                return filmsWithSearchedDirectors;
-            default:
-                return Collections.emptyList();
-        }
     }
 
     @Override
