@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.*;
@@ -22,14 +21,14 @@ public class UserService {
     private final UserStorage userStorage;
     private final FeedService feedService;
     private final FilmService filmService;
-    private final LikeDbStorage likeDbStorage;
+    private final LikeService likeService;
 
-    public UserService(UserStorage userStorage, LikeDbStorage likeDbStorage,
+    public UserService(UserStorage userStorage, @Lazy LikeService likeService,
                        @Lazy FeedService feedService, @Lazy FilmService filmService) {
         this.userStorage = userStorage;
         this.feedService = feedService;
         this.filmService = filmService;
-        this.likeDbStorage = likeDbStorage;
+        this.likeService = likeService;
     }
 
     public List<User> findAll() {
@@ -114,7 +113,7 @@ public class UserService {
         User user = get(id);
         List<Film> films = filmService.findAll();
         List<Film> likedFilms = films.stream()
-                .filter(film -> likeDbStorage.getAll(film.getId()).contains(user.getId()))
+                .filter(film -> likeService.getAll(film.getId()).contains(user.getId()))
                 .collect(Collectors.toList());
         if (films.isEmpty() || likedFilms.isEmpty()) {
             log.info("No recommendation films found");
@@ -122,7 +121,7 @@ public class UserService {
         }
 
         Map<User, Integer> userLikesCounts = new HashMap<>();
-        likedFilms.forEach(film -> likeDbStorage.getAll(film.getId()).stream()
+        likedFilms.forEach(film -> likeService.getAll(film.getId()).stream()
                 .filter(idUser -> !idUser.equals(user.getId()))
                 .map(this::get)
                 .forEach(anotherUser -> userLikesCounts.put(anotherUser, userLikesCounts.getOrDefault(anotherUser, 0) + 1)));
@@ -134,7 +133,7 @@ public class UserService {
 
         User userMaxLike = Collections.max(userLikesCounts.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
         List<Film> recommendedFilms = films.stream()
-                .filter(film -> likeDbStorage.getAll(film.getId()).contains(userMaxLike.getId()))
+                .filter(film -> likeService.getAll(film.getId()).contains(userMaxLike.getId()))
                 .collect(Collectors.toList());
 
         recommendedFilms.removeAll(likedFilms);
