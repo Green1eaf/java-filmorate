@@ -5,11 +5,13 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
+
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class GenreDbStorage implements GenreStorage {
@@ -47,11 +49,10 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public Genre get(long id) {
-        return jdbcTemplate.query("SELECT * FROM genres WHERE id=?", new Object[]{id}, new BeanPropertyRowMapper<>(Genre.class))
-                .stream()
-                .findFirst()
-                .orElseThrow(() -> new NotExistException("Genre with id=" + id + " not exists"));
+    public Optional<Genre> get(long id) {
+        String sqlQuery = "SELECT * FROM genres WHERE id = ?";
+        List<Genre> genres = jdbcTemplate.query(sqlQuery, this::mapRowToGenre, id);
+        return genres.isEmpty() ? Optional.empty() : Optional.of(genres.get(0));
     }
 
     @Override
@@ -63,5 +64,12 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public List<Genre> getAll() {
         return jdbcTemplate.query("SELECT * FROM genres", new BeanPropertyRowMapper<>(Genre.class));
+    }
+
+    private Genre mapRowToGenre(ResultSet resultSet, int i) throws SQLException {
+        return Genre.builder()
+                .id(resultSet.getLong("id"))
+                .name(resultSet.getString("name"))
+                .build();
     }
 }
