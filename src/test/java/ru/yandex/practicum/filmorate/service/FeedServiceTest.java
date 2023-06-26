@@ -33,7 +33,7 @@ public class FeedServiceTest {
     private final UserService userService;
     private final UserStorage userStorage;
     private final FilmStorage filmStorage;
-    private final FilmService filmService;
+    private final LikeService likeService;
 
     private FeedService feedService;
     private User user;
@@ -49,8 +49,8 @@ public class FeedServiceTest {
         Film film = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
                 new Mpa(1L, "G"), 0, Collections.emptyList(), Collections.emptyList());
         filmStorage.create(film);
-        filmService.like(film.getId(), user.getId());
-        filmService.removeLike(film.getId(), user.getId());
+        likeService.like(film.getId(), user.getId());
+        likeService.removeLike(film.getId(), user.getId());
     }
 
     @Test

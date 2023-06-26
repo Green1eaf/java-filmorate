@@ -6,9 +6,7 @@ import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,22 +20,17 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final DirectorService directorService;
-    private final LikeStorage likeStorage;
     private final GenreService genreService;
-    private final FeedService feedService;
 
     public FilmService(FilmStorage filmStorage,
                        UserService userService,
-                       LikeStorage likeStorage,
                        GenreService genreService,
-                       DirectorService directorService,
-                       FeedService feedService) {
+                       DirectorService directorService
+    ) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.genreService = genreService;
         this.directorService = directorService;
-        this.likeStorage = likeStorage;
-        this.feedService = feedService;
     }
 
     public List<Film> findAll() {
@@ -55,33 +48,6 @@ public class FilmService {
         return film;
     }
 
-    public void like(long filmId, long userId) {
-        userService.get(userId);
-        getById(filmId);
-        likeStorage.add(userId, filmId);
-        log.info("like for film with id={} from user with id={}", filmId, userId);
-        UserEvent userEvent = UserEvent.builder()
-                .userId(userId)
-                .eventType("LIKE")
-                .operation("ADD")
-                .entityId(filmId)
-                .build();
-        feedService.save(userEvent);
-    }
-
-    public void removeLike(long id, long userId) {
-        userService.get(userId);
-        getById(id);
-        likeStorage.remove(userId, id);
-        log.info("remove like from film with id={}, from user with id={}", id, userId);
-        UserEvent userEvent = UserEvent.builder()
-                .userId(userId)
-                .eventType("LIKE")
-                .operation("REMOVE")
-                .entityId(getById(id).getId())
-                .build();
-        feedService.save(userEvent);
-    }
 
     public List<Film> findFilteredPopularFilms(Integer limit, Long genreId, Integer year) {
         log.info("find " + limit + " most popular films with genreId = " + genreId + " and release year = " + year);
@@ -157,4 +123,5 @@ public class FilmService {
                 throw new BadRequestException("Некорректный параметр сортировки: " + sortBy);
         }
     }
+
 }
