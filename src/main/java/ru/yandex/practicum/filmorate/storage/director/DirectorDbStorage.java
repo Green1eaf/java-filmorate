@@ -1,15 +1,16 @@
 package ru.yandex.practicum.filmorate.storage.director;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class DirectorDbStorage implements DirectorStorage {
@@ -64,12 +65,20 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public void addAllToFilm(long filmId, List<Director> directors) {
-        if (directors != null) {
-            List<Object[]> batchArgs = directors.stream()
-                    .map(director -> new Object[]{filmId, director.getId()})
-                    .collect(Collectors.toList());
-            jdbcTemplate.batchUpdate("INSERT INTO film_director (film_id, director_id) VALUES (?,?)", batchArgs);
-        }
+        jdbcTemplate.batchUpdate("INSERT INTO film_director (film_id, director_id) VALUES (?, ?)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        Director director = directors.get(i);
+                        ps.setLong(1, filmId);
+                        ps.setLong(2, director.getId());
+                    }
+
+                    @Override
+                    public int getBatchSize() {
+                        return directors.size();
+                    }
+                });
     }
 
     @Override
