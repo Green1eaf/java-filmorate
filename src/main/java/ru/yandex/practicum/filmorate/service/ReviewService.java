@@ -79,7 +79,9 @@ public class ReviewService {
 
     public List<Review> findAllByFilmIdOrAll(Long filmId, Integer count) {
         log.info("received all reviews");
-        return reviewStorage.findAll(filmId, count);
+        return (filmId == null) ?
+                reviewStorage.findAll(count) :
+                reviewStorage.findAllByFilmId(filmId, count);
     }
 
     public void addLike(Long reviewId, Long userId) {

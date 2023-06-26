@@ -4,14 +4,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Review;
 
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
 public class ReviewDbStorage implements ReviewStorage {
@@ -40,9 +38,6 @@ public class ReviewDbStorage implements ReviewStorage {
 
     @Override
     public Optional<Review> update(Review review) {
-        if (review == null) {
-            throw new NotExistException("Empty argument passed!");
-        }
         String sqlQuery = "UPDATE reviews " +
                 "SET content = ?, is_positive = ? " +
                 "WHERE id = ?";
@@ -64,13 +59,13 @@ public class ReviewDbStorage implements ReviewStorage {
     }
 
     @Override
-    public List<Review> findAll(Long filmId, Integer count) {
-        return (filmId == null) ?
-                jdbcTemplate.query("SELECT * FROM reviews ORDER BY useful DESC", new ReviewMapper()) :
-                jdbcTemplate.query("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC",
-                                new ReviewMapper(), filmId).stream()
-                .limit(count)
-                .collect(Collectors.toList());
+    public List<Review> findAll(Integer count) {
+        return jdbcTemplate.query("SELECT * FROM reviews ORDER BY useful DESC LIMIT ?", new ReviewMapper(), count);
+    }
+
+    @Override
+    public List<Review> findAllByFilmId(Long filmId, Integer count) {
+        return jdbcTemplate.query("SELECT * FROM reviews WHERE film_id = ? ORDER BY useful DESC LIMIT ?", new ReviewMapper(), filmId, count);
     }
 
     @Override

@@ -14,7 +14,9 @@ public interface ReviewStorage {
 
     Optional<Review> get(Long id);
 
-    List<Review> findAll(Long filmId, Integer count);
+    List<Review> findAll(Integer count);
+
+    List<Review> findAllByFilmId(Long filmId, Integer count);
 
     void increaseUseful(Long reviewId);
 
