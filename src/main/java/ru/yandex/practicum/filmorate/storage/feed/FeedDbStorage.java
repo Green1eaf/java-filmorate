@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.event;
+package ru.yandex.practicum.filmorate.storage.feed;
 
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -8,11 +8,11 @@ import ru.yandex.practicum.filmorate.model.UserEvent;
 import java.util.List;
 
 @Repository
-public class UserEventDbStorage implements UserEventStorage {
+public class FeedDbStorage implements FeedStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
-    public UserEventDbStorage(JdbcTemplate jdbcTemplate) {
+    public FeedDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
     }
 
@@ -24,7 +24,7 @@ public class UserEventDbStorage implements UserEventStorage {
     }
 
     @Override
-    public List<UserEvent> findByUserIdOrderByTimestampDesc(Long userId) {
+    public List<UserEvent> findByUserIdOrderByTimestampAsc(Long userId) {
         String sql = "SELECT * FROM user_events WHERE user_id = ? ORDER BY event_id ASC";
         return jdbcTemplate.query(sql, new Object[]{userId}, new BeanPropertyRowMapper<>(UserEvent.class));
     }

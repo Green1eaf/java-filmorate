@@ -6,6 +6,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class DirectorService {
@@ -39,11 +40,11 @@ public class DirectorService {
     }
 
     public void updateAllToFilm(long filmId, List<Director> directors) {
-        directorStorage.updateAllToFilm(filmId, directors);
+        directorStorage.updateAllToFilm(filmId, Objects.requireNonNullElseGet(directors, List::of));
     }
 
     public void addAllToFilm(long filmId, List<Director> directors) {
-        directorStorage.addAllToFilm(filmId, directors);
+        directorStorage.addAllToFilm(filmId, Objects.requireNonNullElseGet(directors, List::of));
     }
 
     public List<Director> getAllByFilmId(long filmId) {
