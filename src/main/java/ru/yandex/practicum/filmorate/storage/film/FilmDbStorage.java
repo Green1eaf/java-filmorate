@@ -168,8 +168,6 @@ public class FilmDbStorage implements FilmStorage {
                         + "GROUP_CONCAT(d.id) AS directorsid, "
                         + "GROUP_CONCAT(d.NAME) AS directorsname "
                         + "FROM films AS f "
-                        + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
-                        + "LEFT OUTER JOIN likes l2 ON f.id = l2.film_id "
                         + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
                         + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
                         + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "

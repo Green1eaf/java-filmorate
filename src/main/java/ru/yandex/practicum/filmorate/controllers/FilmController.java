@@ -39,8 +39,9 @@ public class FilmController {
 
     @PutMapping("/{id}/like/{userId}")//todo del Like
     public void addLike(@PathVariable long id, @PathVariable long userId, @PathVariable long mark) {
-     likeService.add(id, userId, mark);
+        likeService.addLike(id, userId, mark);
     }
+
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable long id, @PathVariable long userId) {
         likeService.removeLike(id, userId);

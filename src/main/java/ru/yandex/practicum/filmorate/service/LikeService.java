@@ -28,10 +28,10 @@ public class LikeService {
     }
 
     public void addLike(long filmId, long userId, long mark) {
-        userService.get(userId);
-        filmService.getById(filmId);
+        userService.checkExisting(userId);
+        filmService.checkExisting(filmId);
         likeDbStorage.add(filmId, userId, mark);
-        log.info("like for film with id={} from user with id={}", filmId, userId, mark);
+        log.info("like = {} for film with id={} from user with id={}", mark, filmId, userId);
         UserEvent userEvent = UserEvent.builder()
                 .userId(userId)
                 .eventType("LIKE")
@@ -39,12 +39,11 @@ public class LikeService {
                 .entityId(filmId)
                 .build();
         userEventService.save(userEvent);
-
     }
 
     public void removeLike(long filmId, long userId) {
-        userService.get(userId);
-        filmService.getById(filmId);
+        userService.checkExisting(userId);
+        filmService.checkExisting(filmId);
         likeDbStorage.remove(userId, filmId);
         log.info("remove like from film with id={}, from user with id={}", filmId, userId);
         UserEvent userEvent = UserEvent.builder()
