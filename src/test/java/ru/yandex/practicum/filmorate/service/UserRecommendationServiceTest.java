@@ -19,18 +19,18 @@ import static org.mockito.Mockito.when;
 
 public class UserRecommendationServiceTest {
     @Mock
-    UserStorage userStorage;
+    private UserStorage userStorage;
 
     @Mock
-    LikeService likeService;
+    private LikeService likeService;
 
     @Mock
-    FilmService filmService;
+    private FilmService filmService;
 
     @Mock
-    FeedService feedService;
+    private FeedService feedService;
 
-    UserService userService;
+    private UserService userService;
 
     @BeforeEach
     void setUp() {
