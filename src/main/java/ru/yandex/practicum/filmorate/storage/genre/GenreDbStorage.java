@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.storage.genre;
 
+import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -7,7 +8,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.ArrayList;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 @Repository
@@ -22,13 +24,19 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     @Transactional
     public void add(long filmId, List<Genre> genres) {
-        if (genres != null) {
-            List<Object[]> batchArgs = new ArrayList<>();
-            for (Genre genre : genres) {
-                batchArgs.add(new Object[]{filmId, genre.getId()});
-            }
-            jdbcTemplate.batchUpdate("INSERT INTO film_genre (film_id, genre_id) VALUES (?,?)", batchArgs);
-        }
+        jdbcTemplate.batchUpdate("INSERT INTO film_genre (film_id, genre_id) VALUES (?, ?)",
+                new BatchPreparedStatementSetter() {
+                    @Override
+                    public void setValues(PreparedStatement ps, int i) throws SQLException {
+                        Genre genre = genres.get(i);
+                        ps.setLong(1, filmId);
+                        ps.setLong(2, genre.getId());
+                    }
+                    @Override
+                    public int getBatchSize() {
+                        return genres.size();
+                    }
+                });
     }
 
     @Override
