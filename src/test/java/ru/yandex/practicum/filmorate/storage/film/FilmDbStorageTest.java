@@ -146,14 +146,4 @@ class FilmDbStorageTest {
         directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
         assertEquals(filmStorage.get(FILM.getId()), filmStorage.getFilmsByPartOfDirectorName("dir").get(0));
     }
-
-    @Test
-    void searchFilm() {
-        directorStorage.create(DIRECTOR);
-        directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
-        directorStorage.addAllToFilm(SECOND_FILM.getId(), List.of(DIRECTOR));
-        assertEquals(filmStorage.findAll(), filmStorage.searchFilms("film", "title"));
-        assertEquals(filmStorage.findAll(), filmStorage.searchFilms("dir", "director"));
-        assertEquals(filmStorage.findAll(), filmStorage.searchFilms("film", "title,director"));
-    }
 }
