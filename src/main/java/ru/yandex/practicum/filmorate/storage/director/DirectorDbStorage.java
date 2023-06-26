@@ -39,8 +39,7 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Optional<Director> get(long id) {
         String sqlQuery = "SELECT ID, NAME FROM directors where id = ?";
-        List<Director> directors = jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
-        return directors.isEmpty() ? Optional.empty() : Optional.of(directors.get(0));
+        return jdbcTemplate.queryForStream(sqlQuery, this::mapRowToDirector, id).findFirst();
     }
 
     @Override
