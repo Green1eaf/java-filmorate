@@ -37,14 +37,14 @@ public class DirectorDbStorage implements DirectorStorage {
 
     @Override
     public Optional<Director> get(long id) {
-        String sqlQuery = "SELECT ID, NAME FROM directors where id = ?";
+        String sqlQuery = "SELECT id, name FROM directors where id = ?";
         List<Director> directors = jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
         return directors.isEmpty() ? Optional.empty() : Optional.of(directors.get(0));
     }
 
     @Override
     public Director update(Director director) {
-        String sqlQuery = "update directors set name = ? where id = ?";
+        String sqlQuery = "UPDATE directors SET name = ? WHERE id = ?";
         jdbcTemplate.update(sqlQuery, director.getName(), director.getId());
         return director;
     }
