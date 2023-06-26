@@ -13,7 +13,9 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Director {
+
     private long id;
+
     @NotNull
     @NotBlank
     private String name;

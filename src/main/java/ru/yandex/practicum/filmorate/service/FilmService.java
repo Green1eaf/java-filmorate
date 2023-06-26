@@ -40,11 +40,6 @@ public class FilmService {
         this.feedService = feedService;
     }
 
-    public List<Film> findAll() {
-        log.info("Find all films");
-        return filmStorage.findAll();
-    }
-
     public Film create(Film film) {
         if (film.getId() != null) {
             throw new AlreadyExistException(
@@ -53,6 +48,27 @@ public class FilmService {
         filmStorage.create(film);
         log.info("added film with id: {} and name: {}", film.getId(), film.getName());
         return film;
+    }
+
+    public Film getById(long id) {
+        log.info("Get film with id=" + id);
+        return Optional.ofNullable(filmStorage.get(id))
+                .orElseThrow(() -> new NotExistException("Film with id=" + id + " not exists"));
+    }
+
+    public Film update(Film film) {
+        log.info("Film with id=" + film.getId() + " and name=" + film.getName() + " updated");
+        return filmStorage.update(film);
+    }
+
+    public void removeById(long filmId) {
+        filmStorage.delete(filmId);
+        log.info("remove film with id={}", filmId);
+    }
+
+    public List<Film> findAll() {
+        log.info("Find all films");
+        return filmStorage.findAll();
     }
 
     public void like(long filmId, long userId) {
@@ -121,22 +137,6 @@ public class FilmService {
                 : searchFilmsByQuery(query, directorAndTitle).stream()
                 .sorted(Comparator.comparing(Film::getRate).thenComparing(Film::getId).reversed())
                 .collect(Collectors.toList());
-    }
-
-    public Film getById(long id) {
-        log.info("Get film with id=" + id);
-        return Optional.ofNullable(filmStorage.get(id))
-                .orElseThrow(() -> new NotExistException("Film with id=" + id + " not exists"));
-    }
-
-    public Film update(Film film) {
-        log.info("Film with id=" + film.getId() + " and name=" + film.getName() + " updated");
-        return filmStorage.update(film);
-    }
-
-    public void removeById(long filmId) {
-        filmStorage.delete(filmId);
-        log.info("remove film with id={}", filmId);
     }
 
     public List<Film> getCommonFilms(long userId, long friendId) {
