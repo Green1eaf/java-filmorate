@@ -15,17 +15,14 @@ public class DirectorService {
         this.directorStorage = directorStorage;
     }
 
+    public Director create(Director director) {
+        return directorStorage.create(director);
+    }
+
+
     public Director getById(long id) {
         return directorStorage.get(id)
                 .orElseThrow(() -> new NotExistException("Director is not found"));
-    }
-
-    public List<Director> getAll() {
-        return directorStorage.findAll();
-    }
-
-    public Director create(Director director) {
-        return directorStorage.create(director);
     }
 
     public Director update(Director director) {
@@ -36,6 +33,10 @@ public class DirectorService {
     public void remove(long id) {
         getById(id);
         directorStorage.delete(id);
+    }
+
+    public List<Director> getAll() {
+        return directorStorage.findAll();
     }
 
     public void updateAllToFilm(long filmId, List<Director> directors) {

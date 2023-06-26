@@ -33,9 +33,6 @@ public class UserService {
         this.likeDbStorage = likeDbStorage;
     }
 
-    public List<User> findAll() {
-        return userStorage.findAll();
-    }
 
     public User create(User user) {
         if (user.getName().isEmpty() || user.getName().isBlank()) {
@@ -59,6 +56,15 @@ public class UserService {
         log.info("Get film with id={}", id);
         return Optional.ofNullable(userStorage.get(id))
                 .orElseThrow(() -> new NotExistException("User with id=" + id + " not exist"));
+    }
+
+    public void removeById(long userId) {
+        userStorage.delete(userId);
+        log.info("remove user with id={}", userId);
+    }
+
+    public List<User> findAll() {
+        return userStorage.findAll();
     }
 
     public void addFriend(long id, long friendId) {
@@ -104,11 +110,6 @@ public class UserService {
         return userFriends.stream()
                 .filter(otherUserFriends::contains)
                 .collect(Collectors.toList());
-    }
-
-    public void removeById(long userId) {
-        userStorage.delete(userId);
-        log.info("remove user with id={}", userId);
     }
 
     public List<Film> getRecommendationFilms(long id) {
