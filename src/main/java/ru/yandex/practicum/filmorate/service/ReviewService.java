@@ -80,7 +80,7 @@ public class ReviewService {
     public List<Review> findAllByFilmIdOrAll(Long filmId, Integer count) {
         log.info("received all reviews");
         return (filmId == null) ?
-                reviewStorage.findAll(count) : 
+                reviewStorage.findAll(count) :
                 reviewStorage.findAllByFilmId(filmId, count);
     }
 
