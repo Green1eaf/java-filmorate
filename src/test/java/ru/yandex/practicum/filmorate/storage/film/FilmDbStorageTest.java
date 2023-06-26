@@ -19,6 +19,7 @@ import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -61,7 +62,7 @@ class FilmDbStorageTest {
 
     @Test
     void create() {
-        assertEquals(FILM, filmStorage.get(FILM.getId()));
+        assertEquals(Optional.of(FILM), filmStorage.get(FILM.getId()));
     }
 
     @Test
@@ -79,14 +80,14 @@ class FilmDbStorageTest {
 
     @Test
     void delete() {
-        assertEquals(FILM, filmStorage.get(FILM.getId()));
+        assertEquals(Optional.of(FILM), filmStorage.get(FILM.getId()));
         filmStorage.delete(FILM.getId());
-        assertNull(filmStorage.get(FILM.getId()));
+        assertEquals(Optional.empty(), filmStorage.get(FILM.getId()));
     }
 
     @Test
     void get() {
-        assertEquals(FILM, filmStorage.get(FILM.getId()));
+        assertEquals(Optional.of(FILM), filmStorage.get(FILM.getId()));
     }
 
     @Test
@@ -137,13 +138,13 @@ class FilmDbStorageTest {
 
     @Test
     void getFilmByPartOfTitle() {
-        assertEquals(filmStorage.get(FILM.getId()), filmStorage.getFilmsByPartOfTitle("te").get(0));
+        assertEquals(filmStorage.get(FILM.getId()), Optional.of(filmStorage.getFilmsByPartOfTitle("te").get(0)));
     }
 
     @Test
     void getFilmByPartOfDirectorName() {
         directorStorage.create(DIRECTOR);
         directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
-        assertEquals(filmStorage.get(FILM.getId()), filmStorage.getFilmsByPartOfDirectorName("dir").get(0));
+        assertEquals(filmStorage.get(FILM.getId()), Optional.of(filmStorage.getFilmsByPartOfDirectorName("dir").get(0)));
     }
 }
