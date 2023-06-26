@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
@@ -32,6 +31,7 @@ public class GenreDbStorage implements GenreStorage {
                         ps.setLong(1, filmId);
                         ps.setLong(2, genre.getId());
                     }
+
                     @Override
                     public int getBatchSize() {
                         return genres.size();
