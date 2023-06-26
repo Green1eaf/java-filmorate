@@ -1,12 +1,12 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
-import java.util.List;
+import java.util.Set;
 
 public interface LikeStorage {
 
-    List<Long> getAll(long filmId);
+    Set<Long> getAll(long filmId);
 
-    void add(long userId, long filmId);
+    void add(long userId, long filmId, long mark);
 
     void remove(long userId, long filmId);
 }

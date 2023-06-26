@@ -95,7 +95,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film get(long id) {
         return jdbcTemplate.query(
                         "SELECT f.id, f.name, f.description, f.release_date, f.duration, "
-                                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                                + "f.mpa_rating_id, m.name AS mpa_name, AVG(l.mark) AS likes, "
                                 + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                                 + "GROUP_CONCAT(g.name) AS genresnames, "
                                 + "GROUP_CONCAT(d.id) AS directorsid, "
@@ -119,7 +119,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> findAll() {
         return jdbcTemplate.query(
                 "SELECT f.id, f.name, f.description, f.release_date, f.duration, "
-                        + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                        + "f.mpa_rating_id, m.name AS mpa_name, AVG(l.mark) AS likes, "
                         + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                         + "GROUP_CONCAT(g.name) AS genresnames, "
                         + "GROUP_CONCAT(d.id) AS directorsid, "
@@ -139,7 +139,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getCommonFilms(long userId, long friendId) {
         return jdbcTemplate.query(
                 "SELECT f.id, f.name, f.description, f.release_date, f.duration, "
-                        + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                        + "f.mpa_rating_id, m.name AS mpa_name, AVG(l.mark) AS likes, "
                         + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                         + "GROUP_CONCAT(g.name) AS genresnames, "
                         + "GROUP_CONCAT(d.id) AS directorsid, "
@@ -162,7 +162,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getFilmsByDirector(long id, String sortBy) {
         return jdbcTemplate.query(
                 "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
-                        + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                        + "f.mpa_rating_id, m.name AS mpa_name, AVG(l.mark) AS likes, "
                         + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                         + "GROUP_CONCAT(g.name) AS genresnames, "
                         + "GROUP_CONCAT(d.id) AS directorsid, "
@@ -201,7 +201,7 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getFilmsByPartOfTitle(String filmNamePart) {
         String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
-                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                + "f.mpa_rating_id, m.name AS mpa_name, AVG(l.mark) AS likes, "
                 + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                 + "GROUP_CONCAT(g.name) AS genresnames, "
                 + "GROUP_CONCAT(d.id) AS directorsid, "
@@ -223,7 +223,7 @@ public class FilmDbStorage implements FilmStorage {
 
     public List<Film> getFilmsByPartOfDirectorName(String directorNamePart) {
         String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
-                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                + "f.mpa_rating_id, m.name AS mpa_name, AVG(l.mark) AS likes, "
                 + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
                 + "GROUP_CONCAT(g.name) AS genresnames, "
                 + "GROUP_CONCAT(DISTINCT d.id) AS directorsid, "

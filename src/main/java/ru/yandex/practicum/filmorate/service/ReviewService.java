@@ -16,13 +16,13 @@ public class ReviewService {
     private final ReviewStorage reviewStorage;
     private final FilmService filmService;
     private final UserService userService;
-    private final UserEventStorage userEventStorage;
+    private final UserEventService userEventService;
 
-    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService, UserEventStorage userEventDbStorage) {
+    public ReviewService(ReviewStorage reviewStorage, FilmService filmService, UserService userService, UserEventService userEventService) {
         this.reviewStorage = reviewStorage;
         this.filmService = filmService;
         this.userService = userService;
-        this.userEventStorage = userEventDbStorage;
+        this.userEventService = userEventService;
     }
 
     public Review create(Review review) {
@@ -37,7 +37,7 @@ public class ReviewService {
                 .operation("ADD")
                 .entityId(review.getReviewId())
                 .build();
-        userEventStorage.save(userEvent);
+        userEventService.save(userEvent);
         return review;
     }
 
@@ -54,7 +54,7 @@ public class ReviewService {
                 .operation("UPDATE")
                 .entityId(previousEntityId)
                 .build();
-        userEventStorage.save(userEvent);
+        userEventService.save(userEvent);
         return reviewStorage.update(review)
                 .orElseThrow(() -> new NotExistException("review with id=" + review.getReviewId() + " not exists"));
     }
@@ -69,7 +69,7 @@ public class ReviewService {
                 .operation("REMOVE")
                 .entityId(review.getReviewId())
                 .build();
-        userEventStorage.save(userEvent);
+        userEventService.save(userEvent);
         reviewStorage.delete(id);
     }
 

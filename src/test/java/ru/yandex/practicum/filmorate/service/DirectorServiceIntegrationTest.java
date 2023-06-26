@@ -129,7 +129,7 @@ public class DirectorServiceIntegrationTest {
         film.setGenres(List.of());
         film.setDirectors(List.of());
         film.setDuration(10);
-        film.setRate(1);
+        film.setRate(1.0);
         film.setDescription("description");
         filmService.create(film);
 

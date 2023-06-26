@@ -13,18 +13,18 @@ import java.util.List;
 @Slf4j
 public class UserFeedService {
 
-    private final UserEventStorage userEventStorage;
-    private final UserDbStorage userDbStorage;
+    private final UserEventService userEventService;
+    private final UserService userService;
 
-    public UserFeedService(UserEventStorage userEventStorage, UserDbStorage userDbStorage) {
-        this.userEventStorage = userEventStorage;
-        this.userDbStorage = userDbStorage;
+    public UserFeedService(UserEventService userEventService,  UserService userService) {
+        this.userEventService = userEventService;
+        this.userService = userService;
     }
 
     public List<UserEvent> getUserFeed(Long userId) {
-        if (!userDbStorage.existsById(userId)) {
+        if (!userService.existsById(userId)) {
             throw new NotExistException("User with id=" + userId + " does not exist");
         }
-        return userEventStorage.findByUserIdOrderByTimestampDesc(userId);
+        return userEventService.findByUserIdOrderByTimestampDesc(userId);
     }
 }

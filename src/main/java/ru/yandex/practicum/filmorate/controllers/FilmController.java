@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controllers;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.LikeService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -14,9 +15,11 @@ public class FilmController {
     private static final String DEFAULT_SEARCH_LIMIT_VALUE = "10";
 
     private final FilmService filmService;
+    private final LikeService likeService;
 
-    public FilmController(FilmService filmService) {
+    public FilmController(FilmService filmService, LikeService likeService) {
         this.filmService = filmService;
+        this.likeService = likeService;
     }
 
     @GetMapping
@@ -35,14 +38,14 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public void like(@PathVariable long id, @PathVariable long userId) {
-        filmService.like(id, userId);
+    public void addLike(@PathVariable long id, @PathVariable long userId, @PathVariable long mark) {
+     likeService.addLike(id, userId, mark);
     }
-
     @DeleteMapping("/{id}/like/{userId}")
     public void removeLike(@PathVariable long id, @PathVariable long userId) {
-        filmService.removeLike(id, userId);
+        likeService.removeLike(id, userId);
     }
+
 
     @GetMapping("/popular")
     public List<Film> findPopularFilmsWithFilter(@RequestParam(required = false, name = "count",

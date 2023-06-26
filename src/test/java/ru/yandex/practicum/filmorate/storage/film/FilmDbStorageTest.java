@@ -130,7 +130,7 @@ class FilmDbStorageTest {
         createUserAndFriend();
         likeStorage.add(USER.getId(), FILM.getId());
         likeStorage.add(FRIEND.getId(), FILM.getId());
-        FILM.setRate(2);
+        FILM.setRate(2.0);
         Assertions.assertArrayEquals(filmStorage.getCommonFilms(USER.getId(), FRIEND.getId()).toArray(),
                 List.of(FILM).toArray());
     }
