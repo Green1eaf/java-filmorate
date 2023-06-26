@@ -89,7 +89,13 @@ public class ReviewDbStorageTest {
     @Test
     void findAll() {
         Review newReview = createNewReview();
-        assertArrayEquals(List.of(review, newReview).toArray(), reviewStorage.findAll(film.getId(), 2).toArray());
+        assertArrayEquals(List.of(review, newReview).toArray(), reviewStorage.findAll(2).toArray());
+    }
+
+    @Test
+    void findAllByFilmId() {
+        Review newReview = createNewReview();
+        assertArrayEquals(List.of(review, newReview).toArray(), reviewStorage.findAllByFilmId(film.getId(), 2).toArray());
     }
 
     private Review createNewReview() {
