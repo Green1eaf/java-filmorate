@@ -7,4 +7,5 @@ public interface FeedStorage {
 
     void save(UserEvent userEvent);
 
-    List<UserEvent> findByUserIdOrderByTimestampAsc(Long userId);}
+    List<UserEvent> findByUserIdOrderByTimestampAsc(Long userId);
+}
