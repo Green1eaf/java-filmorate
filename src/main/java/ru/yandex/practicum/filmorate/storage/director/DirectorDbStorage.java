@@ -5,7 +5,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Director;
-
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,7 +38,8 @@ public class DirectorDbStorage implements DirectorStorage {
     @Override
     public Optional<Director> get(long id) {
         String sqlQuery = "SELECT ID, NAME FROM directors where id = ?";
-        return jdbcTemplate.queryForStream(sqlQuery, this::mapRowToDirector, id).findFirst();
+        List<Director> directors = jdbcTemplate.query(sqlQuery, this::mapRowToDirector, id);
+        return directors.isEmpty() ? Optional.empty() : Optional.of(directors.get(0));
     }
 
     @Override
