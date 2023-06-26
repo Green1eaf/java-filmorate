@@ -6,7 +6,6 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -23,7 +22,7 @@ public class UserRecommendationServiceTest {
     UserStorage userStorage;
 
     @Mock
-    LikeDbStorage likeDbStorage;
+    LikeService likeService;
 
     @Mock
     FilmService filmService;
@@ -36,7 +35,7 @@ public class UserRecommendationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userStorage, likeDbStorage, feedService, filmService);
+        userService = new UserService(userStorage, likeService, feedService, filmService);
     }
 
     /**
@@ -47,7 +46,7 @@ public class UserRecommendationServiceTest {
         User user1 = User.builder().id(1L).login("user1").email("user1@example.com").build();
         when(userStorage.get(user1.getId())).thenReturn(user1);
         when(filmService.findAll()).thenReturn(new ArrayList<>());
-        when(likeDbStorage.getAll(anyLong())).thenReturn(new ArrayList<>());
+        when(likeService.getAll(anyLong())).thenReturn(new ArrayList<>());
 
         List<Film> result = userService.getRecommendationFilms(user1.getId());
 
@@ -67,7 +66,7 @@ public class UserRecommendationServiceTest {
 
         when(userStorage.get(user.getId())).thenReturn(user);
         when(filmService.findAll()).thenReturn(List.of(film));
-        when(likeDbStorage.getAll(film.getId())).thenReturn(Collections.singletonList(user.getId()));
+        when(likeService.getAll(film.getId())).thenReturn(Collections.singletonList(user.getId()));
         List<Film> result = userService.getRecommendationFilms(user.getId());
 
         assertTrue(result.isEmpty());
@@ -87,7 +86,7 @@ public class UserRecommendationServiceTest {
         when(userStorage.get(user.getId())).thenReturn(user);
         when(userStorage.get(otherUser.getId())).thenReturn(otherUser);
         when(filmService.findAll()).thenReturn(List.of(film));
-        when(likeDbStorage.getAll(film.getId())).thenReturn(Arrays.asList(user.getId(), otherUser.getId()));
+        when(likeService.getAll(film.getId())).thenReturn(Arrays.asList(user.getId(), otherUser.getId()));
         List<Film> result = userService.getRecommendationFilms(user.getId());
 
         assertTrue(result.isEmpty());

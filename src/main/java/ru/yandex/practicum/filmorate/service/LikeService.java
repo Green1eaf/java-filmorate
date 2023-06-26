@@ -23,7 +23,6 @@ public class LikeService {
     }
 
     public List<Long> getAll(long id) {
-
         return likeDbStorage.getAll(id);
     }
 
