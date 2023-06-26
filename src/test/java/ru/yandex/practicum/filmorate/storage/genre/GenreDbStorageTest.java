@@ -47,7 +47,7 @@ class GenreDbStorageTest {
     void add() {
         film = filmStorage.create(film);
         genreStorage.add(film.getId(), List.of(new Genre(1L, "Комедия")));
-        film = filmStorage.get(film.getId());
+        film = filmStorage.get(film.getId()).orElse(null);
         assertArrayEquals(List.of(new Genre(1L, "Комедия")).toArray(),
                 film.getGenres().toArray());
     }

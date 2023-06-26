@@ -44,6 +44,8 @@ public class FilmService {
                     "Film " + film.getName() + " with id=" + film.getId() + " is already exist");
         }
         filmStorage.create(film);
+        genreService.addAll(film.getId(), film.getGenres());
+        directorService.addAllToFilm(film.getId(), film.getDirectors());
         log.info("added film with id: {} and name: {}", film.getId(), film.getName());
         return film;
     }
@@ -91,11 +93,24 @@ public class FilmService {
 
     public Film getById(long id) {
         log.info("Get film with id=" + id);
-        return Optional.ofNullable(filmStorage.get(id))
+        return filmStorage.get(id)
                 .orElseThrow(() -> new NotExistException("Film with id=" + id + " not exists"));
     }
 
     public Film update(Film film) {
+        if (film == null) {
+            throw new NotExistException("Передан пустой аргумент!");
+        }
+        getById(film.getId());
+
+        var genres = Optional.ofNullable(film.getGenres()).stream()
+                .flatMap(List::stream)
+                .distinct()
+                .collect(Collectors.toList());
+        film.setGenres(genres);
+        genreService.update(film.getId(), genres);
+        directorService.updateAllToFilm(film.getId(), film.getDirectors());
+
         log.info("Film with id=" + film.getId() + " and name=" + film.getName() + " updated");
         return filmStorage.update(film);
     }
