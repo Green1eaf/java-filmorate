@@ -46,6 +46,7 @@ CREATE TABLE IF NOT EXISTS likes
 (
     user_id LONG NOT NULL,
     film_id LONG NOT NULL,
+    mark LONG,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
     FOREIGN KEY (film_id) REFERENCES films (id) ON DELETE CASCADE
 );
