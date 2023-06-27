@@ -26,19 +26,19 @@ public class LikeService {
         return likeDbStorage.getAll(id);
     }
 
-    public void add(long userId, long filmId) {
-        likeDbStorage.add(userId, filmId);
+    public void add(long userId, long filmId, long mark) {
+        likeDbStorage.add(userId, filmId, mark);
     }
 
     public void remove(long userId, long filmId) {
         likeDbStorage.remove(userId, filmId);
     }
 
-    public void like(long filmId, long userId) {
+    public void like(long filmId, long userId, long mark) {
         userService.get(userId);
         filmService.getById(filmId);
-        add(userId, filmId);
-        log.info("like for film with id={} from user with id={}", filmId, userId);
+        add(userId, filmId, mark);
+        log.info("like = {} for film with id={} from user with id={}", mark, filmId, userId);
         UserEvent userEvent = UserEvent.builder()
                 .userId(userId)
                 .eventType("LIKE")
