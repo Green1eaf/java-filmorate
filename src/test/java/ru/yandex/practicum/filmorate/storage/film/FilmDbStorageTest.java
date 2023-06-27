@@ -1,19 +1,25 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.exception.NotExistException;
+import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.director.DirectorStorage;
+import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -24,32 +30,45 @@ import static org.junit.jupiter.api.Assertions.*;
 class FilmDbStorageTest {
 
     private final FilmStorage filmStorage;
-    private Film film;
+    private final UserStorage userStorage;
+    private final LikeStorage likeStorage;
+    private final DirectorStorage directorStorage;
+    private static final Film FILM;
+    private static final Film SECOND_FILM;
+    private static final User USER;
+    private static final User FRIEND;
+
+    private static final Director DIRECTOR;
+
+    static {
+        USER = new User(null, "email@ya.com", "login", "name",
+                LocalDate.of(1986, 3, 14), null);
+        FRIEND = new User(null, "friend@ya.com", "friend", "friend",
+                LocalDate.of(1986, 3, 14), null);
+        FILM = new Film(null, "testfilm", "desc", LocalDate.of(2000, 1, 1), 100,
+                new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
+        SECOND_FILM = new Film(null, "film", "desc", LocalDate.of(2000, 1, 1), 100,
+                new Mpa(1L, "G"), 0, Collections.emptyList(), List.of());
+        DIRECTOR = new Director(1L, "Director");
+    }
 
     @BeforeEach
     public void init() {
-        film = Film.builder()
-                .name("test")
-                .description("desc")
-                .releaseDate(LocalDate.of(2000, 1, 1))
-                .duration(100)
-                .mpa(new Mpa(1L, "G"))
-                .genres(Collections.emptyList())
-                .likes(Collections.emptySet())
-                .build();
-        filmStorage.create(film);
-        film.setId(1L);
+        filmStorage.create(FILM);
+        filmStorage.create(SECOND_FILM);
+        FILM.setId(1L);
+        SECOND_FILM.setId(2L);
     }
 
     @Test
     void create() {
-        assertEquals(film, filmStorage.get(film.getId()));
+        assertEquals(Optional.of(FILM), filmStorage.get(FILM.getId()));
     }
 
     @Test
     void update() {
         var updatedFilm = Film.builder()
-                .id(film.getId())
+                .id(FILM.getId())
                 .name("updated")
                 .description("upDesc")
                 .releaseDate(LocalDate.of(2001, 2, 2))
@@ -61,19 +80,71 @@ class FilmDbStorageTest {
 
     @Test
     void delete() {
-        film.setMpa(new Mpa(1L, "G"));
-        assertEquals(film, filmStorage.get(film.getId()));
-        filmStorage.delete(film.getId());
-        assertThrows(NotExistException.class, () -> filmStorage.get(film.getId()));
+        assertEquals(Optional.of(FILM), filmStorage.get(FILM.getId()));
+        filmStorage.delete(FILM.getId());
+        assertEquals(Optional.empty(), filmStorage.get(FILM.getId()));
     }
 
     @Test
     void get() {
-        assertEquals(film, filmStorage.get(film.getId()));
+        assertEquals(Optional.of(FILM), filmStorage.get(FILM.getId()));
     }
 
     @Test
     void findAll() {
-        assertArrayEquals(List.of(film).toArray(), filmStorage.findAll().toArray());
+        assertArrayEquals(List.of(FILM, SECOND_FILM).toArray(), filmStorage.findAll().toArray());
+    }
+
+    @Test
+    void commonNoCommonFilmsBefore() {
+        createUserAndFriend();
+        Assertions.assertArrayEquals(filmStorage.getCommonFilms(USER.getId(), FRIEND.getId()).toArray(),
+                Collections.emptyList().toArray());
+    }
+
+    @Test
+    void getCommonFilms() {
+        addLikesAndGetCommonFilms();
+    }
+
+    @Test
+    void getNoCommonFilmsAfterDeleteLikeFromUser() {
+        addLikesAndGetCommonFilms();
+        likeStorage.remove(USER.getId(), FILM.getId());
+        Assertions.assertArrayEquals(filmStorage.getCommonFilms(USER.getId(), FRIEND.getId()).toArray(),
+                Collections.emptyList().toArray());
+    }
+
+    @Test
+    void getFilmsByDirector() {
+        directorStorage.create(DIRECTOR);
+        directorStorage.addAllToFilm(1L, List.of(DIRECTOR));
+        Assertions.assertEquals(1, filmStorage.getFilmsByDirector(1L, "likes").toArray().length);
+    }
+
+    private void createUserAndFriend() {
+        userStorage.create(USER);
+        userStorage.create(FRIEND);
+    }
+
+    private void addLikesAndGetCommonFilms() {
+        createUserAndFriend();
+        likeStorage.add(USER.getId(), FILM.getId());
+        likeStorage.add(FRIEND.getId(), FILM.getId());
+        FILM.setRate(2);
+        Assertions.assertArrayEquals(filmStorage.getCommonFilms(USER.getId(), FRIEND.getId()).toArray(),
+                List.of(FILM).toArray());
+    }
+
+    @Test
+    void getFilmByPartOfTitle() {
+        assertEquals(filmStorage.get(FILM.getId()), Optional.of(filmStorage.getFilmsByPartOfTitle("te").get(0)));
+    }
+
+    @Test
+    void getFilmByPartOfDirectorName() {
+        directorStorage.create(DIRECTOR);
+        directorStorage.addAllToFilm(FILM.getId(), List.of(DIRECTOR));
+        assertEquals(filmStorage.get(FILM.getId()), Optional.of(filmStorage.getFilmsByPartOfDirectorName("dir").get(0)));
     }
 }

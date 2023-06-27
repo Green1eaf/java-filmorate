@@ -15,6 +15,7 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,7 +38,6 @@ class GenreDbStorageTest {
                 .releaseDate(LocalDate.of(2000, 1, 1))
                 .duration(100)
                 .mpa(new Mpa(1L, "G"))
-                .likes(Collections.emptySet())
                 .genres(Collections.emptyList())
                 .build();
     }
@@ -47,14 +47,14 @@ class GenreDbStorageTest {
     void add() {
         film = filmStorage.create(film);
         genreStorage.add(film.getId(), List.of(new Genre(1L, "Комедия")));
-        film = filmStorage.get(film.getId());
+        film = filmStorage.get(film.getId()).orElse(null);
         assertArrayEquals(List.of(new Genre(1L, "Комедия")).toArray(),
                 film.getGenres().toArray());
     }
 
     @Test
     void get() {
-        assertEquals(new Genre(1L, "Комедия"), genreStorage.get(1L));
+        assertEquals(Optional.of(new Genre(1L, "Комедия")), genreStorage.get(1L));
     }
 
     @Test

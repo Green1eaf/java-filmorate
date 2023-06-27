@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.storage.genre.GenreStorage;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 public class GenreService {
@@ -16,8 +17,10 @@ public class GenreService {
         this.genreStorage = genreStorage;
     }
 
-    public void addAll(long filmId, List<Genre> genres) {
-        genreStorage.add(filmId, genres);
+    public void addAll(Long filmId, List<Genre> genres) throws BadRequestException {
+        if (genres != null && filmId != null) {
+            genreStorage.add(filmId, genres);
+        }
     }
 
     public void update(long filmId, List<Genre> genres) {
@@ -25,7 +28,8 @@ public class GenreService {
     }
 
     public Genre get(long id) {
-        return genreStorage.get(id);
+        return genreStorage.get(id)
+                .orElseThrow(() -> new NotExistException("Genre with id=" + id + " not exists"));
     }
 
     public void delete(long filmId) {
@@ -34,13 +38,5 @@ public class GenreService {
 
     public List<Genre> getAll() {
         return genreStorage.getAll();
-    }
-
-    public List<Genre> getAllByFilmId(long id) {
-        return Optional.ofNullable(genreStorage.getAllByFilmId(id))
-                .orElse(Collections.emptyList()).stream()
-                .distinct()
-                .sorted(Comparator.comparing(Genre::getId))
-                .collect(Collectors.toList());
     }
 }

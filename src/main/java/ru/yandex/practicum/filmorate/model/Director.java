@@ -5,13 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Mpa {
+public class Director {
 
-    private Long id;
+    private long id;
 
+    @NotNull
+    @NotBlank
     private String name;
 }

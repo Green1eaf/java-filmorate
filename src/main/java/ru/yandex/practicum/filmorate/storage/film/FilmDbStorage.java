@@ -1,40 +1,26 @@
 package ru.yandex.practicum.filmorate.storage.film;
 
-import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.GenreService;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
-import ru.yandex.practicum.filmorate.storage.mpa_rating.MpaRatingStorage;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Repository
-@Primary
 public class FilmDbStorage implements FilmStorage {
 
     private final JdbcTemplate jdbcTemplate;
-    private final MpaRatingStorage mpaRatingStorage;
-    private final GenreService genreService;
-    private final LikeStorage likeStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaRatingStorage mpaRatingService, GenreService genreService, LikeStorage likeStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.mpaRatingStorage = mpaRatingService;
-        this.genreService = genreService;
-        this.likeStorage = likeStorage;
     }
 
     @Override
@@ -56,37 +42,23 @@ public class FilmDbStorage implements FilmStorage {
         }, keyHolder);
 
         film.setId((Objects.requireNonNull(keyHolder.getKey()).longValue()));
-        genreService.addAll(film.getId(), film.getGenres());
-
         return film;
     }
 
     @Override
     @Transactional
     public Film update(Film film) {
-        if (film == null) {
-            throw new NotExistException("Передан пустой аргумент!");
-        }
-        String sqlQuery = "UPDATE films SET " +
-                "name = ?, description = ?, release_date = ?, duration = ?, " +
-                "mpa_rating_id = ? WHERE id = ?";
-        if (jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update("UPDATE films " +
+                        "SET name = ?, description = ?, release_date = ?, duration = ?, mpa_rating_id = ? " +
+                        "WHERE id = ?",
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId(),
-                film.getId()) != 0) {
-            var genres = Optional.ofNullable(film.getGenres()).stream()
-                    .flatMap(List::stream)
-                    .distinct()
-                    .collect(Collectors.toList());
-            film.setGenres(genres);
-            genreService.update(film.getId(), genres);
-            return film;
-        } else {
-            throw new NotExistException("Фильм с ID=" + film.getId() + " не найден!");
-        }
+                film.getId());
+        return film;
+
     }
 
     @Override
@@ -96,32 +68,136 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film get(long id) {
-        Film film = jdbcTemplate.query("SELECT * FROM films WHERE id=?", new Object[]{id},
-                        new FilmMapper()).stream()
-                .findFirst()
-                .orElse(null);
-        if (film == null) {
-            throw new NotExistException("film with id=" + id + " not exists");
-        }
-
-        film.setMpa(mpaRatingStorage.get(film.getMpa().getId()));
-        film.setGenres(genreService.getAllByFilmId(id));
-        film.setLikes(new HashSet<>(likeStorage.getAll(id)));
-        return film;
+    public Optional<Film> get(long id) {
+        return jdbcTemplate.query(
+                        "SELECT f.id, f.name, f.description, f.release_date, f.duration, "
+                                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                                + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                                + "GROUP_CONCAT(g.name) AS genresnames, "
+                                + "GROUP_CONCAT(d.id) AS directorsid, "
+                                + "GROUP_CONCAT(d.NAME) AS directorsname "
+                                + "FROM films AS f\n"
+                                + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                                + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                                + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                                + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                                + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                                + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                                + "WHERE f.id = ? "
+                                + "GROUP BY f.id "
+                                + "ORDER BY COUNT(l.user_id)",
+                        new Object[]{id}, new FilmMapper()).stream()
+                .findFirst();
     }
 
     @Override
     public List<Film> findAll() {
-        return jdbcTemplate.query("SELECT * FROM films", (rs, rowNum) -> new Film(
-                rs.getLong("id"),
-                rs.getString("name"),
-                rs.getString("description"),
-                rs.getDate("release_date").toLocalDate(),
-                rs.getInt("duration"),
-                mpaRatingStorage.get(rs.getLong("mpa_rating_id")),
-                new HashSet<>(likeStorage.getAll(rs.getLong("id"))),
-                genreService.getAllByFilmId(rs.getLong("id"))
-        ));
+        return jdbcTemplate.query(
+                "SELECT f.id, f.name, f.description, f.release_date, f.duration, "
+                        + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                        + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                        + "GROUP_CONCAT(g.name) AS genresnames, "
+                        + "GROUP_CONCAT(d.id) AS directorsid, "
+                        + "GROUP_CONCAT(d.NAME) AS directorsname "
+                        + "FROM films AS f "
+                        + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                        + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                        + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                        + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                        + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                        + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                        + "GROUP BY f.id",
+                new FilmMapper());
+    }
+
+    @Override
+    public List<Film> getCommonFilms(long userId, long friendId) {
+        return jdbcTemplate.query(
+                "SELECT f.id, f.name, f.description, f.release_date, f.duration, "
+                        + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                        + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                        + "GROUP_CONCAT(g.name) AS genresnames, "
+                        + "GROUP_CONCAT(d.id) AS directorsid, "
+                        + "GROUP_CONCAT(d.NAME) AS directorsname "
+                        + "FROM films AS f "
+                        + "INNER JOIN likes l1 ON f.id = l1.film_id AND l1.user_id=? "
+                        + "INNER JOIN likes l2 ON f.id = l2.film_id AND l2.user_id=? "
+                        + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                        + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                        + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                        + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                        + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                        + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                        + "GROUP BY f.id "
+                        + "ORDER BY likes DESC",
+                new Object[]{userId, friendId}, new FilmMapper());
+    }
+
+    @Override
+    public List<Film> getFilmsByDirector(long id, String sortBy) {
+        return jdbcTemplate.query(
+                "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
+                        + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                        + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                        + "GROUP_CONCAT(g.name) AS genresnames, "
+                        + "GROUP_CONCAT(d.id) AS directorsid, "
+                        + "GROUP_CONCAT(d.NAME) AS directorsname "
+                        + "FROM films AS f "
+                        + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
+                        + "LEFT OUTER JOIN likes l2 ON f.id = l2.film_id "
+                        + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                        + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                        + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                        + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                        + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                        + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                        + "WHERE d.id = ? "
+                        + "GROUP BY f.id "
+                        + "ORDER BY " + sortBy,
+                new Object[]{id}, new FilmMapper());
+    }
+
+    @Override
+    public List<Film> getFilmsByPartOfTitle(String filmNamePart) {
+        String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
+                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                + "GROUP_CONCAT(g.name) AS genresnames, "
+                + "GROUP_CONCAT(d.id) AS directorsid, "
+                + "GROUP_CONCAT(d.NAME) AS directorsname "
+                + "FROM films AS f "
+                + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
+                + "LEFT OUTER JOIN likes l2 ON f.id = l2.film_id "
+                + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                + "WHERE LCASE(f.NAME) LIKE '%" + filmNamePart.toLowerCase() + "%' "
+                + "GROUP BY f.id ";
+        return jdbcTemplate.query(sqlString, new FilmMapper());
+
+    }
+
+    public List<Film> getFilmsByPartOfDirectorName(String directorNamePart) {
+        String sqlString = "SELECT f.id, f.name, f.description, f.release_date as years, f.duration, "
+                + "f.mpa_rating_id, m.name AS mpa_name, COUNT(l.user_id) AS likes, "
+                + "GROUP_CONCAT(DISTINCT fg.genre_id) AS genresid, "
+                + "GROUP_CONCAT(g.name) AS genresnames, "
+                + "GROUP_CONCAT(DISTINCT d.id) AS directorsid, "
+                + "GROUP_CONCAT(d.NAME) AS directorsname "
+                + "FROM films AS f "
+                + "LEFT OUTER JOIN likes l1 ON f.id = l1.film_id "
+                + "LEFT OUTER JOIN likes l2 ON f.id = l2.film_id "
+                + "JOIN mpa_ratings AS m ON m.id = f.mpa_rating_id "
+                + "LEFT OUTER JOIN likes AS l ON f.id = l.film_id "
+                + "LEFT OUTER JOIN film_genre AS fg ON fg.film_id = f.id "
+                + "LEFT OUTER JOIN genres AS g ON g.id = fg.genre_id "
+                + "LEFT OUTER JOIN film_director as fd ON fd.film_id = f.id "
+                + "LEFT OUTER JOIN directors AS d ON d.id = fd.director_ID "
+                + "WHERE LCASE(d.NAME) LIKE '%" + directorNamePart.toLowerCase() + "%' "
+                + "GROUP BY f.id ";
+        return jdbcTemplate.query(sqlString, new FilmMapper());
     }
 }
