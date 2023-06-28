@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 
@@ -13,7 +14,7 @@ public class LikeService {
     private final LikeDbStorage likeDbStorage;
     private final UserService userService;
     private final FeedService feedService;
-    private final  FilmService filmService;
+    private final FilmService filmService;
 
     public LikeService(LikeDbStorage likeDbStorage, UserService userService, FeedService feedService, FilmService filmService) {
         this.likeDbStorage = likeDbStorage;
@@ -26,7 +27,7 @@ public class LikeService {
         return likeDbStorage.getAll(id);
     }
 
-    public void add(long userId, long filmId, long mark) {
+    public void add(Long userId, Long filmId, Long mark) {
         likeDbStorage.add(userId, filmId, mark);
     }
 
@@ -34,7 +35,11 @@ public class LikeService {
         likeDbStorage.remove(userId, filmId);
     }
 
-    public void like(long filmId, long userId, long mark) {
+    public void like(Long filmId, Long userId, Long mark) {
+        if (filmId == null || userId == null || mark == null) {
+            throw new BadRequestException("Недостаточно данных, необходимо указать фильм, свой id и оценку");
+        }
+
         userService.get(userId);
         filmService.getById(filmId);
         add(userId, filmId, mark);
