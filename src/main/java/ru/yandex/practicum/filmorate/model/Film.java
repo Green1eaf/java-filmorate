@@ -37,9 +37,10 @@ public class Film {
     @NotNull
     private Mpa mpa;
 
-    private int rate;
+    private double rate;
 
     private List<Genre> genres;
 
     private List<Director> directors;
+
 }

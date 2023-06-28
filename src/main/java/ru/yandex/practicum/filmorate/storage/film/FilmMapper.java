@@ -52,7 +52,7 @@ public class FilmMapper implements RowMapper<Film> {
                 .releaseDate(rs.getDate("release_date").toLocalDate())
                 .duration(rs.getInt("duration"))
                 .mpa(new Mpa(rs.getLong("mpa_rating_id"), rs.getString("mpa_name")))
-                .rate(rs.getInt("likes"))
+                .rate(rs.getDouble("likes"))
                 .genres(genres)
                 .directors(directors)
                 .build();

@@ -40,8 +40,8 @@ public class LikeService {
             throw new BadRequestException("Недостаточно данных, необходимо указать фильм, свой id и оценку");
         }
 
-        userService.get(userId);
-        filmService.getById(filmId);
+        userService.checkExisting(userId);
+        filmService.checkExisting(filmId);
         add(userId, filmId, mark);
         log.info("like = {} for film with id={} from user with id={}", mark, filmId, userId);
         UserEvent userEvent = UserEvent.builder()
@@ -53,18 +53,21 @@ public class LikeService {
         feedService.save(userEvent);
     }
 
-    public void removeLike(long id, long userId) {
-        userService.get(userId);
-        filmService.getById(id);
-        remove(userId, id);
-        log.info("remove like from film with id={}, from user with id={}", id, userId);
+    public void removeLike(long filmId, long userId) {
+        userService.checkExisting(userId);
+        filmService.checkExisting(filmId);
+        remove(userId, filmId);
+        log.info("remove like from film with id={}, from user with id={}", filmId, userId);
         UserEvent userEvent = UserEvent.builder()
                 .userId(userId)
                 .eventType("LIKE")
                 .operation("REMOVE")
-                .entityId(filmService.getById(id).getId())
+                .entityId(filmService.getById(filmId).getId())
                 .build();
         feedService.save(userEvent);
     }
 
+    public List<Long> getRecommendations(long userId) {
+        return likeDbStorage.getRecommendations(userId);
+    }
 }

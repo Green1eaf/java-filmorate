@@ -8,10 +8,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.feed.FeedStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
@@ -49,7 +46,7 @@ public class FeedServiceTest {
         Film film = new Film(null, "test", "desc", LocalDate.of(2000, 1, 1), 100,
                 new Mpa(1L, "G"), 0, Collections.emptyList(), Collections.emptyList());
         filmStorage.create(film);
-        likeService.like(film.getId(), user.getId());
+        likeService.like(film.getId(), user.getId(), 10L);
         likeService.removeLike(film.getId(), user.getId());
     }
 

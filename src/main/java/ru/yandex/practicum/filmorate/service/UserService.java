@@ -6,13 +6,13 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.AlreadyExistException;
 import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
-import ru.yandex.practicum.filmorate.storage.like.LikeDbStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,13 +21,13 @@ public class UserService {
 
     private final UserStorage userStorage;
     private final FeedService feedService;
-    private final LikeDbStorage likeDbStorage;
+    private final LikeService likeService;
 
-    public UserService(UserStorage userStorage,
-                       @Lazy FeedService feedService, LikeDbStorage likeDbStorage) {
+
+    public UserService(UserStorage userStorage, @Lazy FeedService feedService, @Lazy LikeService likeService) {
         this.userStorage = userStorage;
         this.feedService = feedService;
-        this.likeDbStorage = likeDbStorage;
+        this.likeService = likeService;
     }
 
     public User create(User user) {
@@ -46,6 +46,10 @@ public class UserService {
         get(user.getId());
         log.info("updated user with id: {} and name: {}", user.getId(), user.getName());
         return userStorage.update(user);
+    }
+
+    public void checkExisting(long id) {
+        get(id);
     }
 
     public User get(long id) {
@@ -107,40 +111,10 @@ public class UserService {
                 .filter(otherUserFriends::contains)
                 .collect(Collectors.toList());
     }
-    public List<Long> getRecommendations (long userId){
-        return likeDbStorage.getRecommendations(userId);
-    }
 
-//    public List<Film> getRecommendationFilms(long id) {
-//        User user = get(id);
-//        List<Film> films = filmService.findAll();
-//        List<Film> likedFilms = films.stream()
-//                .filter(film -> likeService.getAll(film.getId()).contains(user.getId()))
-//                .collect(Collectors.toList());
-//        if (films.isEmpty() || likedFilms.isEmpty()) {
-//            log.info("No recommendation films found");
-//            return Collections.emptyList();
-//        }
-//
-//        Map<User, Integer> userLikesCounts = new HashMap<>();
-//        likedFilms.forEach(film -> likeService.getAll(film.getId()).stream()
-//                .filter(idUser -> !idUser.equals(user.getId()))
-//                .map(this::get)
-//                .forEach(anotherUser -> userLikesCounts.put(anotherUser, userLikesCounts.getOrDefault(anotherUser, 0) + 1)));
-//
-//        if (userLikesCounts.isEmpty()) {
-//            log.info("No other users liked the same films as user {}", user);
-//            return Collections.emptyList();
-//        }
-//
-//        User userMaxLike = Collections.max(userLikesCounts.entrySet(), Comparator.comparingInt(Map.Entry::getValue)).getKey();
-//        List<Film> recommendedFilms = films.stream()
-//                .filter(film -> likeService.getAll(film.getId()).contains(userMaxLike.getId()))
-//                .collect(Collectors.toList());
-//
-//        recommendedFilms.removeAll(likedFilms);
-//        return recommendedFilms;
-//    }
+    public List<Long> getRecommendations(long userId) {
+        return likeService.getRecommendations(userId);
+    }
 
     public boolean isExistsById(long id) {
         Integer count = userStorage.findIdFromUsers(id);
