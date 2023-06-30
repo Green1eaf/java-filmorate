@@ -22,6 +22,7 @@ public class Like {
     public Long filmId;
 
     @NotNull
+            //можно заменить аннотацией @Range(min ="1", max = "10")
     @Min(1)
     @Max(10)
     public Long mark;

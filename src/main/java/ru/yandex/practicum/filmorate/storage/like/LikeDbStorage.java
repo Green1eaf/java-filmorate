@@ -32,6 +32,7 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update("DELETE FROM likes WHERE user_id=? AND film_id=?", userId, filmId);
     }
     public List<Long> getRecommendations (long userId){
+        //TODO сделать рефакторинг запроса (ключевые слова запроса прописными буквами)
         return jdbcTemplate.queryForList(  "select lf.FILM_ID\n" +
                 "from likes as lf\n" +
                 "where lf.user_id in\n" +

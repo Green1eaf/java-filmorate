@@ -40,7 +40,7 @@ public class FilmController {
     @PutMapping("/{id}/like/{userId}")
     public void like(@PathVariable(name = "id") Long id,
                      @PathVariable(name = "userId") Long userId,
-                     @RequestParam(name = "mark") Long mark) {
+                     @RequestParam(name = "mark") Long mark) { //тогда эту переменную надо добавить в эндпоинт, либо прислать в теле запроса
         likeService.like(id, userId, mark);
     }
 
