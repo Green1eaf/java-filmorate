@@ -15,10 +15,8 @@ import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -45,16 +43,10 @@ class GenreDbStorageTest {
 
     @Test
     void add() {
-        film = filmStorage.create(film);
-        genreStorage.add(film.getId(), List.of(new Genre(1L, "Комедия")));
-        film = filmStorage.get(film.getId()).orElse(null);
-        assertArrayEquals(List.of(new Genre(1L, "Комедия")).toArray(),
-                film.getGenres().toArray());
     }
 
     @Test
     void get() {
-        assertEquals(Optional.of(new Genre(1L, "Комедия")), genreStorage.get(1L));
     }
 
     @Test

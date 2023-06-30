@@ -35,7 +35,7 @@ public class UserRecommendationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserService(userStorage, likeService, feedService, filmService);
+        userService = new UserService(userStorage, feedService, likeService);
     }
 
     /**
@@ -48,7 +48,7 @@ public class UserRecommendationServiceTest {
         when(filmService.findAll()).thenReturn(new ArrayList<>());
         when(likeService.getAll(anyLong())).thenReturn(new ArrayList<>());
 
-        List<Film> result = userService.getRecommendationFilms(user1.getId());
+        List<Long> result = userService.getRecommendations(user1.getId());
 
         assertTrue(result.isEmpty());
     }
@@ -67,7 +67,7 @@ public class UserRecommendationServiceTest {
         when(userStorage.get(user.getId())).thenReturn(user);
         when(filmService.findAll()).thenReturn(List.of(film));
         when(likeService.getAll(film.getId())).thenReturn(Collections.singletonList(user.getId()));
-        List<Film> result = userService.getRecommendationFilms(user.getId());
+        List<Long> result = userService.getRecommendations(user.getId());
 
         assertTrue(result.isEmpty());
     }
@@ -87,7 +87,7 @@ public class UserRecommendationServiceTest {
         when(userStorage.get(otherUser.getId())).thenReturn(otherUser);
         when(filmService.findAll()).thenReturn(List.of(film));
         when(likeService.getAll(film.getId())).thenReturn(Arrays.asList(user.getId(), otherUser.getId()));
-        List<Film> result = userService.getRecommendationFilms(user.getId());
+        List<Long> result = userService.getRecommendations(user.getId());
 
         assertTrue(result.isEmpty());
     }
