@@ -39,7 +39,8 @@ public class LikeDbStorage implements LikeStorage {
                         "WHERE lf.user_id IN\n" +
                         "(SELECT l2.USER_ID\n" +
                         "FROM LIKES AS l\n" +
-                        "JOIN LIKES AS l2 ON l2.USER_ID != l.USER_ID AND l.FILM_ID = l2.FILM_ID AND l.mark = l2.mark\n" +
+                        "JOIN LIKES AS l2 ON l2.USER_ID != l.USER_ID " +
+                        "AND l.FILM_ID = l2.FILM_ID AND l.mark = l2.mark\n" +
                         "WHERE l.USER_ID = ?\n" +
                         "GROUP BY l2.USER_ID\n" +
                         "ORDER BY COUNT(l2.USER_ID) desc\n" +
