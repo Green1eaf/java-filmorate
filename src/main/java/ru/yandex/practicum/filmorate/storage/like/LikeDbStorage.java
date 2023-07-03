@@ -44,6 +44,7 @@ public class LikeDbStorage implements LikeStorage {
                         "GROUP BY l2.USER_ID\n" +
                         "ORDER BY COUNT(l2.USER_ID) desc\n" +
                         "LIMIT 1)\n" +
-                        "AND lf.mark > 5;", Long.class, userId);
+                        "AND lf.mark > 5;",
+                Long.class, userId);
     }
 }
