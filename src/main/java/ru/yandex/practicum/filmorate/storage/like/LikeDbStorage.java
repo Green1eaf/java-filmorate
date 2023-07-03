@@ -31,7 +31,6 @@ public class LikeDbStorage implements LikeStorage {
     public void remove(long userId, long filmId) {
         jdbcTemplate.update("DELETE FROM likes WHERE user_id=? AND film_id=?", userId, filmId);
     }
-
     @Override
     public List<Long> getRecommendations(long userId) {
         return jdbcTemplate.queryForList(
