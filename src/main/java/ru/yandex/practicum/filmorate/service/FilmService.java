@@ -91,6 +91,10 @@ public class FilmService {
                 .collect(Collectors.toList());
     }
 
+    public void checkExisting(long id) {
+        getById(id);
+    }
+
     public Film getById(long id) {
         log.info("Get film with id=" + id);
         return filmStorage.get(id)
@@ -138,5 +142,4 @@ public class FilmService {
                 throw new BadRequestException("Некорректный параметр сортировки: " + sortBy);
         }
     }
-
 }

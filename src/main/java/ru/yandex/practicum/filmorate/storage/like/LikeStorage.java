@@ -6,7 +6,7 @@ public interface LikeStorage {
 
     List<Long> getAll(long filmId);
 
-    void add(long userId, long filmId);
+    void add(Long filmId, Long userId, Long mark);
 
     void remove(long userId, long filmId);
 }

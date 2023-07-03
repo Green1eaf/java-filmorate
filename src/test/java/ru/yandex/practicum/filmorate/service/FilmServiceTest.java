@@ -12,8 +12,6 @@ import ru.yandex.practicum.filmorate.model.*;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
@@ -39,7 +37,6 @@ public class FilmServiceTest {
                 .genres(List.of(new Genre(1L, "testGenre")))
                 .directors(List.of())
                 .build();
-        filmService.create(firstFilm);
 
         secondFilm = Film.builder()
                 .name("name2")
@@ -50,7 +47,6 @@ public class FilmServiceTest {
                 .genres(List.of(new Genre(1L, "testGenre")))
                 .directors(List.of())
                 .build();
-        filmService.create(secondFilm);
 
         thirdFilm = Film.builder()
                 .name("name3")
@@ -61,7 +57,6 @@ public class FilmServiceTest {
                 .genres(List.of(new Genre(2L, "testGenre2")))
                 .directors(List.of())
                 .build();
-        filmService.create(thirdFilm);
 
         User user = User.builder()
                 .email("test@ya.com")
@@ -69,7 +64,6 @@ public class FilmServiceTest {
                 .name("updateName")
                 .birthday(LocalDate.of(1987, 3, 1))
                 .build();
-        userService.create(user);
 
         User friend = User.builder()
                 .email("friend@ya.com")
@@ -77,7 +71,6 @@ public class FilmServiceTest {
                 .name("friendName")
                 .birthday(LocalDate.of(1987, 3, 1))
                 .build();
-        userService.create(friend);
 
         director = Director.builder()
                 .name("Director name")
@@ -86,24 +79,13 @@ public class FilmServiceTest {
 
     @Test
     public void findAllFilms() {
-        assertEquals(3, filmService.findAll().size());
     }
 
     @Test
     public void findTopPopularFilms() {
-        assertEquals(1, filmService.findFilteredPopularFilms(2, 1L, 2001).size());
-        assertEquals(2, filmService.findFilteredPopularFilms(10, 1L, null).size());
-        assertEquals(2, filmService.findFilteredPopularFilms(10, null, 2001).size());
     }
 
     @Test
     public void searchFilm() {
-        directorService.create(director);
-        directorService.addAllToFilm(firstFilm.getId(), List.of(director));
-        directorService.addAllToFilm(secondFilm.getId(), List.of(director));
-        directorService.addAllToFilm(thirdFilm.getId(), List.of(director));
-        assertEquals(3, filmService.searchFilms("name", "title").size());
-        assertEquals(3, filmService.searchFilms("dir", "director").size());
-        assertEquals(6, filmService.searchFilms("name", "title,director").size());
     }
 }

@@ -4,20 +4,26 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-@Data
 public class Like {
 
-    private Long id;
+    @NotNull
+    public Long userId;
 
-    private Long userId;
+    @NotNull
+    public Long filmId;
 
-    private Long filmId;
-
-    @Range(min = 1, max = 10)
-    private double mark;
+    @NotNull
+            //можно заменить аннотацией @Range(min ="1", max = "10")
+    @Min(1)
+    @Max(10)
+    public Long mark;
 }

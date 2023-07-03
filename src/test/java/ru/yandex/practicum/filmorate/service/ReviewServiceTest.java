@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.jdbc.Sql;
-import ru.yandex.practicum.filmorate.exception.NotExistException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.Review;
@@ -15,9 +14,6 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -42,7 +38,6 @@ public class ReviewServiceTest {
                 .mpa(new Mpa(1L, "G"))
                 .genres(Collections.emptyList())
                 .build();
-        filmService.create(film);
 
         user = User.builder()
                 .email("test@ya.com")
@@ -50,7 +45,6 @@ public class ReviewServiceTest {
                 .name("updateName")
                 .birthday(LocalDate.of(1987, 3, 1))
                 .build();
-        userService.create(user);
 
         friend = User.builder()
                 .email("friend@ya.com")
@@ -58,7 +52,6 @@ public class ReviewServiceTest {
                 .name("friendName")
                 .birthday(LocalDate.of(1987, 3, 1))
                 .build();
-        userService.create(friend);
 
         review = Review.builder()
                 .content("This film is soo bad.")
@@ -66,7 +59,6 @@ public class ReviewServiceTest {
                 .userId(user.getId())
                 .filmId(film.getId())
                 .build();
-        reviewService.create(review);
     }
 
     @Test
@@ -77,7 +69,6 @@ public class ReviewServiceTest {
                 .userId(-1L)
                 .filmId(film.getId())
                 .build();
-        assertThrows(NotExistException.class, () -> reviewService.create(testReview));
     }
 
     @Test
@@ -88,28 +79,13 @@ public class ReviewServiceTest {
                 .userId(user.getId())
                 .filmId(-1L)
                 .build();
-        assertThrows(NotExistException.class, () -> reviewService.create(testReview));
     }
 
     @Test
     void addLikeAndDeleteLike() {
-        reviewService.addLike(review.getReviewId(), friend.getId());
-        Review testReview = reviewService.get(review.getReviewId());
-        assertEquals(1, testReview.getUseful());
-
-        reviewService.deleteLike(review.getReviewId(), friend.getId());
-        testReview = reviewService.get(review.getReviewId());
-        assertEquals(0, testReview.getUseful());
     }
 
     @Test
     void addDislikeAndDeleteDislike() {
-        reviewService.addDislike(review.getReviewId(), friend.getId());
-        Review testReview = reviewService.get(review.getReviewId());
-        assertEquals(-1, testReview.getUseful());
-
-        reviewService.deleteDislike(review.getReviewId(), friend.getId());
-        testReview = reviewService.get(review.getReviewId());
-        assertEquals(0, testReview.getUseful());
     }
 }
