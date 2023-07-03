@@ -35,17 +35,17 @@ public class LikeDbStorage implements LikeStorage {
     @Override
     public List<Long> getRecommendations(long userId) {
         return jdbcTemplate.queryForList(
-                "SELECT lf.FILM_ID\n"
-                        + "FROM likes AS lf\n"
-                        + "WHERE lf.user_id IN\n"
-                        + "(SELECT l2.USER_ID\n"
-                        + "FROM LIKES AS l\n"
-                        + "JOIN LIKES AS l2 ON l2.USER_ID != l.USER_ID "
-                        + "AND l.FILM_ID = l2.FILM_ID AND l.mark = l2.mark\n"
-                        + "WHERE l.USER_ID = ?\n"
-                        + "GROUP BY l2.USER_ID\n"
-                        + "ORDER BY COUNT(l2.USER_ID) desc\n"
-                        + "LIMIT 1)\n"
+                "SELECT lf.film_id "
+                        + "FROM likes AS lf "
+                        + "WHERE lf.user_id IN "
+                        + "(SELECT l2.user_id "
+                        + "FROM LIKES AS l "
+                        + "JOIN LIKES AS l2 ON l2.user_id != l.user_id "
+                        + "AND l.film_id = l2.film_id AND l.mark = l2.mark "
+                        + "WHERE l.user_id =? "
+                        + "GROUP BY l2.user_id "
+                        + "ORDER BY COUNT(l2.user_id) DESC "
+                        + "LIMIT 1) "
                         + "AND lf.mark > 5",
                 Long.class, userId);
     }
