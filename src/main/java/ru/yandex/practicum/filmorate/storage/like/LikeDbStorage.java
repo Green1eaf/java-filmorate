@@ -33,16 +33,16 @@ public class LikeDbStorage implements LikeStorage {
     }
     public List<Long> getRecommendations (long userId){
         //TODO сделать рефакторинг запроса (ключевые слова запроса прописными буквами)
-        return jdbcTemplate.queryForList(  "select lf.FILM_ID\n" +
-                "from likes as lf\n" +
-                "where lf.user_id in\n" +
-                "      (select l2.USER_ID\n" +
-                "       from LIKES as l\n" +
-                "                join LIKES as l2 on l2.USER_ID != l.USER_ID and l.FILM_ID = l2.FILM_ID and l.mark = l2.mark\n" +
-                "       where l.USER_ID = ?\n" +
-                "       group by l2.USER_ID\n" +
-                "       order by count(l2.USER_ID) desc\n" +
-                "       limit 1)\n" +
-                "  and lf.mark > 5;", Long.class, userId);
+        return jdbcTemplate.queryForList(  "SELECT lf.FILM_ID\n" +
+                "FROM likes AS lf\n" +
+                "WHERE lf.user_id IN\n" +
+                "(SELECT l2.USER_ID\n" +
+                "FROM LIKES AS l\n" +
+                "JOIN LIKES AS l2 ON l2.USER_ID != l.USER_ID AND l.FILM_ID = l2.FILM_ID AND l.mark = l2.mark\n" +
+                "WHERE l.USER_ID = ?\n" +
+                "GROUP BY l2.USER_ID\n" +
+                "ORDER BY COUNT(l2.USER_ID) desc\n" +
+                "LIMIT 1)\n" +
+                "AND lf.mark > 5;", Long.class, userId);
     }
 }
