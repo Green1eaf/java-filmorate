@@ -32,20 +32,21 @@ public class LikeDbStorage implements LikeStorage {
         jdbcTemplate.update("DELETE FROM likes WHERE user_id=? AND film_id=?", userId, filmId);
     }
 
+    @Override
     public List<Long> getRecommendations(long userId) {
         return jdbcTemplate.queryForList(
-                "SELECT lf.FILM_ID\n" +
-                        "FROM likes AS lf\n" +
-                        "WHERE lf.user_id IN\n" +
-                        "(SELECT l2.USER_ID\n" +
-                        "FROM LIKES AS l\n" +
-                        "JOIN LIKES AS l2 ON l2.USER_ID != l.USER_ID " +
-                        "AND l.FILM_ID = l2.FILM_ID AND l.mark = l2.mark\n" +
-                        "WHERE l.USER_ID = ?\n" +
-                        "GROUP BY l2.USER_ID\n" +
-                        "ORDER BY COUNT(l2.USER_ID) desc\n" +
-                        "LIMIT 1)\n" +
-                        "AND lf.mark > 5;",
+                "SELECT lf.FILM_ID\n"
+                        + "FROM likes AS lf\n"
+                        + "WHERE lf.user_id IN\n"
+                        + "(SELECT l2.USER_ID\n"
+                        + "FROM LIKES AS l\n"
+                        + "JOIN LIKES AS l2 ON l2.USER_ID != l.USER_ID "
+                        + "AND l.FILM_ID = l2.FILM_ID AND l.mark = l2.mark\n"
+                        + "WHERE l.USER_ID = ?\n"
+                        + "GROUP BY l2.USER_ID\n"
+                        + "ORDER BY COUNT(l2.USER_ID) desc\n"
+                        + "LIMIT 1)\n"
+                        + "AND lf.mark > 5",
                 Long.class, userId);
     }
 }

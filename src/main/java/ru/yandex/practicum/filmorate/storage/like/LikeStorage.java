@@ -9,4 +9,6 @@ public interface LikeStorage {
     void add(Long filmId, Long userId, Long mark);
 
     void remove(long userId, long filmId);
+
+    List<Long> getRecommendations(long userId);
 }
